@@ -81,3 +81,5 @@ Now you can share your edition by uploading your commit to Github with 'push'.
 ```
 git push origin main
 ```
+if you get rejected at this stage, other contributers may changed folder before your upload so please pull project before pushing and update your project to the latest one
+and upload your progress by pushing.
