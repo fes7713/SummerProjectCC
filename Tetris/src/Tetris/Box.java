@@ -9,6 +9,7 @@ public class Box {
     int width;
     int height;
     Display display;
+    int active;
 
     int row;
     int col;
@@ -20,6 +21,13 @@ public class Box {
         this.y = y;
         this.width = width;
         this.height = height;
+    }
+
+    public Box(Display display, int row, int column)
+    {
+        this.display = display;
+        this.x = column * display.getBOX_SIZE();
+        this.y = row * display.getBOX_SIZE();
     }
 
     public int getRow()
