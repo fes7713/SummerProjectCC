@@ -25,7 +25,7 @@ First, move to the folder you want to download project folder into with Terminal
 Next, type following texts and push enter.
 
 ```
-git clone https://github.com/YutoShiota/Simple_Game
+git clone https://github.com/fes7713/SummerProjectCC
 ```
 And move to SummerProject folder.
 ```
