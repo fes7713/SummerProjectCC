@@ -43,14 +43,21 @@ public class Display extends JPanel {
         getWidth();
     }
 
-    public void paint(Graphics g)
-    {
+    public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Grid Function (Eriya)
+        for (int i = 0; i <= 10; i++) {
+            //x1, y1, x2, y2
+            g2d.drawLine(START_POS + (BOX_SIZE * i), START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * 20));
+        }
 
+        //row
+        for (int i = 0; i <= 20; i++) {
+            g2d.drawLine(START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * 10), START_POS + (BOX_SIZE * i));
+        }
         // Draw boxes
         boxTest.paint(g2d);
 
