@@ -6,9 +6,9 @@ Git and Github are very useful to administrate files but it's not easy to get us
 Actually, we don't need to use them at this point.
 
 ## Requirement
-* IDE IntelliJ Ultimate (Use Student Licence)
+* IDE IntelliJ (https://www.jetbrains.com/ja-jp/idea/download/)
 * Github
-* Java
+* Java (https://www.oracle.com/java/technologies/javase-jdk16-downloads.html)
 
 
 ## Installation
