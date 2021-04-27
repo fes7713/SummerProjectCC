@@ -34,11 +34,11 @@ cd SummerProjectCC
 if git commands fail at this point, you may need to reinstall your git.
 
 ## How to set configuration
-set your username.
+set your username. (You may exclude quotations)
 ```
 git config --global user.name "First-name Family-name"
 ```
-set your email address.
+set your email address. (You may exclude quotations)
 ```
 git config --global user.email "username@example.com"
 ```
