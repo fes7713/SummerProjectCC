@@ -4,6 +4,22 @@ We can learn how to use Git and Github here.
 Git and Github are very useful to administrate files but it's not easy to get used to using them.
 Actually, we don't need to use them at this point.
 
+## Insrallation
+For mac users, Git is preinstalled in Terminal. But for windows users, you need to need install git in order to use git commands to share your work.
+
+Download installer from below link.
+https://git-scm.com/downloads
+
+
+
+Execute installer and install git to your computer.
+
+## Important!! Set PATH environment
+We want to execute git command from command prompt so set path environment in your computer. Select "Use Git from the Windows Command Prompt" from below choices.
+
+![image](https://user-images.githubusercontent.com/71058334/116184288-6ea2f280-a75a-11eb-813f-1520f797e616.png)
+
+
 ## How to download project to your computer
 First, move to the folder you want to download project folder into with Terminal(macOS) or Command Prompt(windows)
 Next, type following texts and push enter.
