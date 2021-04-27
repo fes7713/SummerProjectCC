@@ -8,15 +8,15 @@ public class Box {
     int y;
     int width;
     int height;
-    Display display;
+    Game game;
     boolean active;
 
     int row;
     int col;
 
-    public Box(Display display, int x, int y, int width, int height)
+    public Box(Game game, int x, int y, int width, int height)
     {
-        this.display = display;
+        this.game = game;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -24,11 +24,11 @@ public class Box {
         active = true;
     }
 
-    public Box(Display display, int row, int column)
+    public Box(Game game, int row, int column)
     {
-        this.display = display;
-        this.x = column * display.getBOX_SIZE();
-        this.y = row * display.getBOX_SIZE();
+        this.game = game;
+        this.x = column * game.getBOX_SIZE() + game.getSTART_POS();
+        this.y = row * game.getBOX_SIZE() + game.getSTART_POS();
         active = true;
     }
 
@@ -42,6 +42,11 @@ public class Box {
         return col;
     }
 
+    public void setCoordinate(int row, int col)
+    {
+        x = col * game.getBOX_SIZE() + game.getSTART_POS();
+        y = row * game.getBOX_SIZE() + game.getSTART_POS();
+    }
     public void setActive(boolean b)
     {
         active = b;
@@ -58,8 +63,7 @@ public class Box {
 
     public void move()
     {
-        if(active)
-            display.getWidth();
+
     }
 
     public void keyPressed(KeyEvent e)
@@ -71,22 +75,18 @@ public class Box {
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
-            x -= width;
-            col--;
+            setCoordinate(row, --col);
         }
         else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-            y += height;
-            row++;
+            setCoordinate(++row, col);
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
-            x += width;
-            col++;
+            setCoordinate(row, ++col);
         }
         else if(e.getKeyCode() == KeyEvent.VK_UP)
         {
-            y -= height;
-            row--;
+            setCoordinate(--row, col);
         }
     }
 }
