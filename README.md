@@ -1,12 +1,15 @@
 # SummerProjectCC
+
+
+We can learn how to use Git and Github here.
+Git and Github are very useful to administrate files but it's not easy to get used to using them.
+Actually, we don't need to use them at this point.
+
 ## Requirement
 * IDE IntelliJ Ultimate (Use Student Licence)
 * Github
 * Java
 
-We can learn how to use Git and Github here.
-Git and Github are very useful to administrate files but it's not easy to get used to using them.
-Actually, we don't need to use them at this point.
 
 ## Insrallation
 For mac users, Git is preinstalled in Terminal. But for windows users, you need to need install git in order to use git commands to share your work.
