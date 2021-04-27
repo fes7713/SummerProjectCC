@@ -27,6 +27,8 @@ public class Box {
     public Box(Game game, int row, int column)
     {
         this.game = game;
+        width = game.getBOX_SIZE();
+        height = game.getBOX_SIZE();
         setCoordinate(row, column);
         active = true;
     }
