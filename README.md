@@ -1,4 +1,8 @@
 # SummerProjectCC
+## Requirement
+* IDE IntelliJ Ultimate (Use Student Licence)
+* Github
+* Java
 
 We can learn how to use Git and Github here.
 Git and Github are very useful to administrate files but it's not easy to get used to using them.
