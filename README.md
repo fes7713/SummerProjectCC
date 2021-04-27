@@ -74,10 +74,10 @@ git remote set-url origin https://github.com/fes7713/SummerProjectCC.git
 # important
 To get the newest files from remote repository, type the following text.
 ```
-git pull origin master
+git pull origin main
 ```
 
 Now you can share your edition by uploading your commit to Github with 'push'.
 ```
-git push origin master
+git push origin main
 ```
