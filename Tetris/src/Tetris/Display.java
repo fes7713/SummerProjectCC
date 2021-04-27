@@ -11,13 +11,15 @@ public class Display extends JPanel {
     private int col;
     private int INITIAL_ROW = 20;
     private int INITIAL_COL = 10;
+    private final int BOX_SIZE = 30;
+    private final int  START_POS = 20;
 
     private Box boxTest;
 
 
     public Display()
     {
-        boxTest = new Box(20, 20, 100, 100);
+        boxTest = new Box(this, START_POS, START_POS, BOX_SIZE, BOX_SIZE);
         KeyListener kl = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -25,15 +27,20 @@ public class Display extends JPanel {
             }
 
             @Override
-            public void keyPressed(KeyEvent e) {
+            public void keyPressed(KeyEvent e)
+            {
+                boxTest.keyPressed(e);
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {
+            public void keyReleased(KeyEvent e)
+            {
+                boxTest.keyReleased(e);
             }
         };
         addKeyListener(kl);
         setFocusable(true);
+        getWidth();
     }
 
     public void paint(Graphics g)
@@ -46,6 +53,10 @@ public class Display extends JPanel {
 
         // Draw boxes
         boxTest.paint(g2d);
+
+        // Pos display
+        g2d.drawString("Row :" + String.valueOf(boxTest.getColumn()), getWidth()-60, 20);
+        g2d.drawString("Column :" + String.valueOf(boxTest.getRow()), getWidth()-60, 40);
     }
 
 
@@ -68,7 +79,7 @@ public class Display extends JPanel {
         while(true)
         {
             game.repaint();
-            Thread.sleep(10);
+            Thread.sleep(70);
         }
     }
 }
