@@ -1,10 +1,17 @@
 # SummerProjectCC
 
+
 We can learn how to use Git and Github here.
 Git and Github are very useful to administrate files but it's not easy to get used to using them.
 Actually, we don't need to use them at this point.
 
-## Insrallation
+## Requirement
+* IDE IntelliJ Ultimate (Use Student Licence)
+* Github
+* Java
+
+
+## Installation
 For mac users, Git is preinstalled in Terminal. But for windows users, you need to need install git in order to use git commands to share your work.
 
 Download installer from below link.
@@ -34,11 +41,11 @@ cd SummerProjectCC
 if git commands fail at this point, you may need to reinstall your git.
 
 ## How to set configuration
-set your username.
+set your username. (You may exclude quotations)
 ```
 git config --global user.name "First-name Family-name"
 ```
-set your email address.
+set your email address. (You may exclude quotations)
 ```
 git config --global user.email "username@example.com"
 ```
