@@ -1,121 +1,59 @@
 # SummerProjectCC
 
-# Name（リポジトリ/プロジェクト/OSSなどの名前）
+We can learn how to use Git and Github here.
+Git and Github are very useful to administrate files but it's not easy to get used to using them.
+Actually, we don't need to use them at this point.
 
-分かりやすくてカッコイイ名前をつける（今回は"hoge"という名前をつける）
+## How to download project to your computer
+First, move to the folder you want to download project folder into with Terminal(macOS) or Command Prompt(windows)
+Next, type following texts and push enter.
 
-"hoge"が何かを簡潔に紹介する
-
-# DEMO
-
-"hoge"の魅力が直感的に伝えわるデモ動画や図解を載せる
-
-# Features
-
-"hoge"のセールスポイントや差別化などを説明する
-
-# Requirement
-
-"hoge"を動かすのに必要なライブラリなどを列挙する
-
-* huga 3.5.2
-* hogehuga 1.0.2
-
-# Installation
-
-Requirementで列挙したライブラリなどのインストール方法を説明する
-
-```bash
-pip install huga_package
+```
+git clone https://github.com/YutoShiota/Simple_Game
+```
+And move to SummerProject folder.
+```
+cd SummerProjectCC
 ```
 
-# Usage
-
-DEMOの実行方法など、"hoge"の基本的な使い方を説明する
-
-```bash
-git clone https://github.com/hoge/~
-cd examples
-python demo.py
+## How to set configuration
+set your username.
+```
+git config --global user.name "First-name Family-name"
+```
+set your email address.
+```
+git config --global user.email "username@example.com"
 ```
 
-# Note
-
-注意点などがあれば書く
-
-# Author
-
-作成情報を列挙する
-
-* 作成者
-* 所属
-* E-mail
-
-# License
-ライセンスを明示する
-
-"hoge" is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
-
-社内向けなら社外秘であることを明示してる
-
-"hoge" is Confidential.
-
-# Name（リポジトリ/プロジェクト/OSSなどの名前）
- 
-分かりやすくてカッコイイ名前をつける（今回は"hoge"という名前をつける）
- 
-"hoge"が何かを簡潔に紹介する
- 
-# DEMO
- 
-"hoge"の魅力が直感的に伝えわるデモ動画や図解を載せる
- 
-# Features
- 
-"hoge"のセールスポイントや差別化などを説明する
- 
-# Requirement
- 
-"hoge"を動かすのに必要なライブラリなどを列挙する
- 
-* huga 3.5.2
-* hogehuga 1.0.2
- 
-# Installation
- 
-Requirementで列挙したライブラリなどのインストール方法を説明する
- 
-```bash
-pip install huga_package
+## How to upload your edition to Github
+Now you can edit files in Simple_Game. And when you made something for example 'loop', you should summarize the edited files with the following text.
 ```
- 
-# Usage
- 
-DEMOの実行方法など、"hoge"の基本的な使い方を説明する
- 
-```bash
-git clone https://github.com/hoge/~
-cd examples
-python demo.py
+git add -A
 ```
- 
-# Note
- 
-注意点などがあれば書く
- 
-# Author
- 
-作成情報を列挙する
- 
-* 作成者
-* 所属
-* E-mail
- 
-# License
-ライセンスを明示する
- 
-"hoge" is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
- 
-社内向けなら社外秘であることを明示してる
- 
-"hoge" is Confidential.
+
+Then, add your summarized files to your repository (this is called commit) wiht the following text.
+```
+git commit -m 'make a loop'
+```
+
+To share your edition, you should find your remote repository (it's here).
+```
+git remote add origin https://github.com/fes7713/SummerProjectCC.git
+```
+
+If you registered a wrong URL, register a correct URL with the following text.
+```
+git remote set-url origin https://github.com/fes7713/SummerProjectCC.git
+```
+
+# important
+To get the newest files from remote repository, type the following text.
+```
+git pull origin master
+```
+
+Now you can share your edition by uploading your commit to Github with 'push'.
+```
+git push origin master
+```
