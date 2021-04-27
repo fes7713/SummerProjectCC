@@ -9,7 +9,7 @@ public class Box {
     int width;
     int height;
     Display display;
-    int active;
+    boolean active;
 
     int row;
     int col;
@@ -21,6 +21,7 @@ public class Box {
         this.y = y;
         this.width = width;
         this.height = height;
+        active = true;
     }
 
     public Box(Display display, int row, int column)
@@ -28,6 +29,7 @@ public class Box {
         this.display = display;
         this.x = column * display.getBOX_SIZE();
         this.y = row * display.getBOX_SIZE();
+        active = true;
     }
 
     public int getRow()
@@ -40,7 +42,15 @@ public class Box {
         return col;
     }
 
+    public void setActive(boolean b)
+    {
+        active = b;
+    }
 
+    public boolean getActive()
+    {
+        return active;
+    }
     public void paint(Graphics2D g)
     {
         g.fillRect(x, y, width, height);
@@ -48,7 +58,8 @@ public class Box {
 
     public void move()
     {
-        display.getWidth();
+        if(active)
+            display.getWidth();
     }
 
     public void keyPressed(KeyEvent e)
