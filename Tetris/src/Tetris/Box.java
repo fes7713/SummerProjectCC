@@ -2,7 +2,7 @@ package Tetris;
 
 import java.awt.*;
 
-public class Box extends Figure{
+public class Box {
     int x;
     int y;
     int width;
@@ -25,6 +25,5 @@ public class Box extends Figure{
     {
 
     }
-
 
 }
