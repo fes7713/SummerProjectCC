@@ -9,8 +9,8 @@ import java.awt.event.KeyListener;
 public class Display extends JPanel {
     private int row;
     private int col;
-    private int INITIAL_ROW = 20;
-    private int INITIAL_COL = 10;
+    private int MAX_ROW = 20;
+    private int MAX_COL = 10;
     private final int BOX_SIZE = 30;
     private final int  START_POS = 20;
 
@@ -49,15 +49,7 @@ public class Display extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Grid Function (Eriya)
-        for (int i = 0; i <= 10; i++) {
-            //x1, y1, x2, y2
-            g2d.drawLine(START_POS + (BOX_SIZE * i), START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * 20));
-        }
-
-        //row
-        for (int i = 0; i <= 20; i++) {
-            g2d.drawLine(START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * 10), START_POS + (BOX_SIZE * i));
-        }
+        gridDraw(g2d);
         // Draw boxes
         boxTest.paint(g2d);
 
@@ -66,12 +58,35 @@ public class Display extends JPanel {
         g2d.drawString("Column :" + String.valueOf(boxTest.getRow()), getWidth()-60, 40);
     }
 
-
-    public int[] getGridSize()
+    public void gridDraw(Graphics2D g)
     {
-        return new int[]{row, col};
+        for (int i = 0; i <= MAX_COL; i++) {
+            //x1, y1, x2, y2
+            g.drawLine(START_POS + (BOX_SIZE * i), START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * MAX_ROW));
+        }
+
+        //row
+        for (int i = 0; i <= MAX_ROW; i++) {
+            g.drawLine(START_POS, START_POS + (BOX_SIZE * i), START_POS + (BOX_SIZE * MAX_COL), START_POS + (BOX_SIZE * i));
+        }
     }
 
+
+    public int getMAX_ROW() {
+        return MAX_ROW;
+    }
+
+    public int getMAX_COL() {
+        return MAX_COL;
+    }
+
+    public int getBOX_SIZE() {
+        return BOX_SIZE;
+    }
+
+    public int getSTART_POS() {
+        return START_POS;
+    }
 
     public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("Simple game");
