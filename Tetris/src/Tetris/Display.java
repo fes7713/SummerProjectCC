@@ -35,7 +35,7 @@ public class Display extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2d.drawString("Line", 20, 20);
-        g2d.drawLine(20, 40, 40, 60);
+        g2d.drawLine(20, 40, 60, 80);
     }
 
     public static void main(String[] args) throws InterruptedException {
