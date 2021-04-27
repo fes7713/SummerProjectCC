@@ -31,6 +31,7 @@ And move to SummerProject folder.
 ```
 cd SummerProjectCC
 ```
+if git commands fail at this point, you may need to reinstall your git.
 
 ## How to set configuration
 set your username.
