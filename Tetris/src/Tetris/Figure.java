@@ -5,5 +5,6 @@ public class Figure {
     {
 //Test
         //Test
+
     }
 }
