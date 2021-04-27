@@ -11,7 +11,7 @@ Actually, we don't need to use them at this point.
 * Java
 
 
-## Insrallation
+## Installation
 For mac users, Git is preinstalled in Terminal. But for windows users, you need to need install git in order to use git commands to share your work.
 
 Download installer from below link.
