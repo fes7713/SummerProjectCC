@@ -3,6 +3,8 @@ package Tetris;
 import java.awt.*;
 
 public class Figure {
+    private int startLeft;
+    private int startTop;
     private int row;
     private int column;
     private Box[][] boxMap;
@@ -10,30 +12,27 @@ public class Figure {
 
     public Figure(Game game)
     {
-        this.game = game;
-        row = game.getMAX_ROW();
-        column = game.getMAX_COL();
-        boxMap = new Box[row][column];
-        for(int i = 0; i < row; i++)
-        {
-            for(int j = 0; j < column; j++)
-            {
-                boxMap[i][j] = new Box(game, i, j);
-            }
-        }
+        this(game, 0, 0, game.getMAX_ROW() , game.getMAX_COL());
     }
 
     public Figure(Game game, int row, int column)
     {
+        this(game, 0, 0, row, column);
+    }
+
+    public Figure(Game game, int startLeft, int startTop, int row, int column)
+    {
         this.game = game;
         this.row = row;
         this.column = column;
+        this.startLeft = startLeft;
+        this.startTop = startTop;
         boxMap = new Box[row][column];
         for(int i = 0; i < row; i++)
         {
             for(int j = 0; j < column; j++)
             {
-                boxMap[i][j] = new Box(game, i, j);
+                boxMap[i][j] = new Box(game, i + startTop, j + startLeft);
             }
         }
     }
@@ -59,7 +58,7 @@ public class Figure {
         }
     }
 
-
+    // Not working
     public void move() throws Exception {
         for(int i = 0; i < row; i++)
         {
@@ -71,7 +70,7 @@ public class Figure {
         }
     }
 
-    // Override in inheritance
+    // WIP
     public void rotate()
     {
 

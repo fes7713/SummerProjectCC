@@ -22,7 +22,7 @@ public class Display extends JPanel {
     {
         this.game = game;
         boxTest = new Box(game, game.getSTART_POS(), game.getSTART_POS(), game.getBOX_SIZE(), game.getBOX_SIZE());
-        figureTest = new Figure(game, 4, 4);
+        figureTest = new Figure(game, 2, 2, 4, 4);
 
         row = game.getMAX_ROW();
         col = game.getMAX_COL();
