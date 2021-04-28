@@ -5,8 +5,10 @@
       <module fileurl="file://$PROJECT_DIR$/BallBounce/BallBounce.iml" filepath="$PROJECT_DIR$/BallBounce/BallBounce.iml" />
       <module fileurl="file://$PROJECT_DIR$/CircleTrace/CircleTrace.iml" filepath="$PROJECT_DIR$/CircleTrace/CircleTrace.iml" />
       <module fileurl="file://$PROJECT_DIR$/CircleX/CircleX.iml" filepath="$PROJECT_DIR$/CircleX/CircleX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ImageDisplay/ImageDisplay.iml" filepath="$PROJECT_DIR$/ImageDisplay/ImageDisplay.iml" />
       <module fileurl="file://$PROJECT_DIR$/MoveBall/MoveBall.iml" filepath="$PROJECT_DIR$/MoveBall/MoveBall.iml" />
       <module fileurl="file://$PROJECT_DIR$/Panel_Sample/Panel_Sample.iml" filepath="$PROJECT_DIR$/Panel_Sample/Panel_Sample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ShapeMover/ShapeMover.iml" filepath="$PROJECT_DIR$/ShapeMover/ShapeMover.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/SummerProjectCC.iml" filepath="$PROJECT_DIR$/.idea/SummerProjectCC.iml" />
       <module fileurl="file://$PROJECT_DIR$/Tetris/Tetris.iml" filepath="$PROJECT_DIR$/Tetris/Tetris.iml" />
     </modules>
