@@ -10,8 +10,12 @@ public class Figure {
     private int column;
     private Box[][] boxMap;
     private Game game;
+
+    // When it is true, you can move figure by pressing arrow keys.
     private boolean movable;
 
+
+    // Constructors with different signatures.
     public Figure(Game game)
     {
         this(game, 0, 0, game.getMAX_ROW() , game.getMAX_COL(), false);
@@ -46,6 +50,11 @@ public class Figure {
         setMap(mapConfig);
     }
 
+
+
+    // Set up box map, When true, show box. When false, hide box.
+    // In the constructor, default is true so everything is shown.
+    // But by using this function, you can update the box map configuration.
     public void setMap(boolean[][] mapConfig)
     {
         if(mapConfig.length != boxMap.length && mapConfig[0].length != boxMap[0].length)
@@ -61,6 +70,7 @@ public class Figure {
         }
     }
 
+    // Update all of box coordinates.
     public void setCoordinates(int startTop, int startLeft)
     {
         for(int i = 0; i < row; i++)
@@ -73,15 +83,18 @@ public class Figure {
     }
 
     // Not working // Somebody make this
-    public void move(){
-        for(int i = 0; i < row; i++)
-        {
-            for(int j = 0; j < column; j++)
-            {
+    // Maybe we dont even need this one.
+//    public void move(){
+//        for(int i = 0; i < row; i++)
+//        {
+//            for(int j = 0; j < column; j++)
+//            {
+//
+//            }
+//        }
+//    }
 
-            }
-        }
-    }
+
 
     // https://strategywiki.org/wiki/Tetris/Rotation_systems
     // Use Super rotation system
@@ -99,6 +112,7 @@ public class Figure {
     }
 
     // Unchecked intersection or wall bound
+    // Get key event and update figure positions.
     public void ketTyped(KeyEvent e)
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)

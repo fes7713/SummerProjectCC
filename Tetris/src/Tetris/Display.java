@@ -7,13 +7,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class Display extends JPanel {
-    private int row;
-    private int col;
-    private int boxWidth;
-    private int startPos;
+    private final int row;
+    private final int col;
+    private final int boxWidth;
+    // Start Pos defines top and left margin.
+    private final int startPos;
 
     Game game;
-
 
     public Display(Game game)
     {
@@ -24,9 +24,14 @@ public class Display extends JPanel {
         boxWidth = game.getBOX_SIZE();
         startPos = game.getSTART_POS();
 
+
+        // Adding key listener to the display.
+        // When arrow keys are pressed then update figures' coordinates.
+        // Add anything that you want to update when key is pressed.
         KeyListener kl = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
+                // When key is pressed, update all of figures.
                 for(Figure fig: game.getFigures())
                 {
                     if(fig.isMovable())
@@ -35,23 +40,15 @@ public class Display extends JPanel {
             }
 
             @Override
-            public void keyPressed(KeyEvent e)
-            {
-                for(Figure fig: game.getFigures())
-                {
-                    if(fig.isMovable())
-                        fig.ketTyped(e);
-                }
+            public void keyPressed(KeyEvent e) {
             }
 
             @Override
-            public void keyReleased(KeyEvent e)
-            {
+            public void keyReleased(KeyEvent e) {
             }
         };
         addKeyListener(kl);
         setFocusable(true);
-        getWidth();
     }
 
 
@@ -69,7 +66,7 @@ public class Display extends JPanel {
         // Grid Function (Eriya)
         gridDraw(g2d);
 
-        // Pos display
+        // Pos display // Test String Draw, delete in the release edition.
         g2d.drawString("Row :" + String.valueOf(game.getFigures().get(0).getTop()), getWidth()-60, 20);
         g2d.drawString("Column :" + String.valueOf(game.getFigures().get(0).getLeft()), getWidth()-60, 40);
     }
@@ -86,24 +83,5 @@ public class Display extends JPanel {
             g.drawLine(startPos, startPos + (boxWidth * i), startPos + (boxWidth * col), startPos + (boxWidth * i));
         }
     }
-
-
-
-//    public static void main(String[] args) throws InterruptedException {
-//        JFrame frame = new JFrame("Simple game");
-//        Display game = new Display();
-//        frame.add(game);
-//
-//
-//        frame.setSize(500, 700);
-//        frame.setVisible(true);
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        while(true)
-//        {
-//            game.repaint();
-//            Thread.sleep(70);
-//        }
-//    }
 }
 

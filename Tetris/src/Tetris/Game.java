@@ -17,19 +17,23 @@ public class Game {
 
     public Game()
     {
+        // If you want u can use 2D map to represent the tetris table
         map = new int[MAX_ROW][MAX_COL];
+
+        // This is figure list and all of things in this list will be displayed on the display.
         figures = new ArrayList<>();
 
+        // This part creates the window.
+        // No need to edit this part and just use this as it is.
         JFrame frame = new JFrame("Simple game");
         display = new Display(this);
         frame.add(display);
-
-
         frame.setSize(500, 700);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    // Adding figure to the list
     public void add(Figure fig)
     {
         figures.add(fig);
@@ -62,11 +66,14 @@ public class Game {
 
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
+
+        // Test game. Use arrow keys to move figures
         game.add(new Figure(game, 1, 1, 1, 1, true));
         game.add(new Figure(game, 4, 5, 3, 4, true));
 
         while(true)
         {
+            // Display class is responsible for updating the game display.
             game.display.repaint();
             Thread.sleep(70);
         }
