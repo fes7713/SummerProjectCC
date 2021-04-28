@@ -83,6 +83,8 @@ public class Figure {
         }
     }
 
+    // https://strategywiki.org/wiki/Tetris/Rotation_systems
+    // Use Super rotation system
     // WIP // Somebody make this
     public void rotate()
     {
@@ -90,11 +92,13 @@ public class Figure {
     }
 
     // Somebody make this
+    // Use this to check if figures are overlapping at the destination before actually moving the figure.
     public boolean intersect(Figure fig)
     {
         return false;
     }
 
+    // Unchecked intersection or wall bound
     public void ketTyped(KeyEvent e)
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
@@ -113,6 +117,8 @@ public class Figure {
             setCoordinates(--startTop, startLeft);
         }
     }
+
+
     public void paint(Graphics2D g)
     {
         for(int i = 0; i < row; i++)
