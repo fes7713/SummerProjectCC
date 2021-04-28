@@ -105,10 +105,19 @@ public class Figure {
     }
 
     // Somebody make this
-    // Use this to check if figures are overlapping at the destination before actually moving the figure.
+    // Use this to check if figures are overlapping at the destination before actually moving the figure in keyTyped func.
     public boolean intersect(Figure fig)
     {
         return false;
+    }
+
+
+    // Combine two figure and create one bif figure.
+    // It is used to make ground block. Like when figure hits ground, ground gets bigger and become one block.
+    // It is better way of managing figure because we dont need to keep many figures.
+    public void combine(Figure fig)
+    {
+
     }
 
     // Unchecked intersection or wall bound
