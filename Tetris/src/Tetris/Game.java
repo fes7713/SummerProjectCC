@@ -69,7 +69,14 @@ public class Game {
 
         // Test game. Use arrow keys to move figures
         game.add(new Figure(game, 1, 1, 1, 1, true));
-        game.add(new Figure(game, 4, 5, 3, 4, true));
+        game.add(new Figure(game, 4, 5, 3, 4, false));
+
+        boolean[][] testBoxMap = {
+                {false, true, true},
+                {false, true, false},
+                {true, true, false}
+        };
+        game.add(new Figure(game, testBoxMap, 1, 3, true));
 
         while(true)
         {

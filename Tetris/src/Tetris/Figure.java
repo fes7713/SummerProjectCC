@@ -44,9 +44,9 @@ public class Figure {
         }
     }
 
-    public Figure(Game game, boolean[][] mapConfig, int row, int column, boolean movable)
+    public Figure(Game game, boolean[][] mapConfig, int startLeft, int startTop, boolean movable)
     {
-        this(game, row, column, movable);
+        this(game, startLeft, startTop, mapConfig.length, mapConfig[0].length, movable);
         setMap(mapConfig);
     }
 
