@@ -31,16 +31,16 @@ public class Display extends JPanel {
         KeyListener kl = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
-                // When key is pressed, update all of figures.
-                for(Figure fig: game.getFigures())
-                {
-                    if(fig.isMovable())
-                        fig.ketTyped(e);
-                }
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
+                // When key is pressed, update all of figures.
+                for(Figure fig: game.getFigures())
+                {
+                    if(fig.isMovable())
+                        fig.keyPressed(e);
+                }
             }
 
             @Override

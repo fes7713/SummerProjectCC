@@ -122,7 +122,7 @@ public class Figure {
 
     // Unchecked intersection or wall bound
     // Get key event and update figure positions.
-    public void ketTyped(KeyEvent e)
+    public void keyPressed(KeyEvent e)
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
