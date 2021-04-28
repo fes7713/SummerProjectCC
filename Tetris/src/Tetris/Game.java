@@ -1,6 +1,8 @@
 package Tetris;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Game {
@@ -10,13 +12,32 @@ public class Game {
     private final int  START_POS = 20;
 
     private int[][] map;
-    Display display;
-
+    private Display display;
+    private ArrayList<Figure> figures;
 
     public Game()
     {
-        display = new Display(this);
         map = new int[MAX_ROW][MAX_COL];
+        figures = new ArrayList<>();
+
+        JFrame frame = new JFrame("Simple game");
+        display = new Display(this);
+        frame.add(display);
+
+
+        frame.setSize(500, 700);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    public void add(Figure fig)
+    {
+        figures.add(fig);
+    }
+
+    public List<Figure> getFigures()
+    {
+        return figures;
     }
 
     public int getMAX_ROW() {
@@ -41,20 +62,12 @@ public class Game {
 
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
-        JFrame frame = new JFrame("Simple game");
-        Display display = new Display(game);
-        frame.add(display);
+        game.add(new Figure(game, 1, 1, 1, 1, true));
+        game.add(new Figure(game, 4, 5, 3, 4, true));
 
-
-        frame.setSize(500, 700);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        Scanner kb = new Scanner(System.in);
-        int row, col;
         while(true)
         {
-            display.repaint();
+            game.display.repaint();
             Thread.sleep(70);
         }
     }

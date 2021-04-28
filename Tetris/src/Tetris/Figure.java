@@ -1,6 +1,7 @@
 package Tetris;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 
 public class Figure {
     private int startLeft;
@@ -9,24 +10,26 @@ public class Figure {
     private int column;
     private Box[][] boxMap;
     private Game game;
+    private boolean movable;
 
     public Figure(Game game)
     {
-        this(game, 0, 0, game.getMAX_ROW() , game.getMAX_COL());
+        this(game, 0, 0, game.getMAX_ROW() , game.getMAX_COL(), false);
     }
 
-    public Figure(Game game, int row, int column)
+    public Figure(Game game, int row, int column, boolean movable)
     {
-        this(game, 0, 0, row, column);
+        this(game, 0, 0, row, column, movable);
     }
 
-    public Figure(Game game, int startLeft, int startTop, int row, int column)
+    public Figure(Game game, int startLeft, int startTop, int row, int column, boolean movable)
     {
         this.game = game;
         this.row = row;
         this.column = column;
         this.startLeft = startLeft;
         this.startTop = startTop;
+        this.movable = movable;
         boxMap = new Box[row][column];
         for(int i = 0; i < row; i++)
         {
@@ -37,9 +40,9 @@ public class Figure {
         }
     }
 
-    public Figure(Game game, boolean[][] mapConfig, int row, int column)
+    public Figure(Game game, boolean[][] mapConfig, int row, int column, boolean movable)
     {
-        this(game, row, column);
+        this(game, row, column, movable);
         setMap(mapConfig);
     }
 
@@ -58,24 +61,58 @@ public class Figure {
         }
     }
 
-    // Not working
-    public void move() throws Exception {
+    public void setCoordinates(int startTop, int startLeft)
+    {
         for(int i = 0; i < row; i++)
         {
             for(int j = 0; j < column; j++)
             {
-//                if(boxMap[i][j] == 1 && game.getMap()[i][j] != 0)
-//                    throw new Exception("Box Overlay");
+                boxMap[i][j].setCoordinate(i+startTop, j + startLeft);
             }
         }
     }
 
-    // WIP
+    // Not working // Somebody make this
+    public void move(){
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < column; j++)
+            {
+
+            }
+        }
+    }
+
+    // WIP // Somebody make this
     public void rotate()
     {
 
     }
 
+    // Somebody make this
+    public boolean intersect(Figure fig)
+    {
+        return false;
+    }
+
+    public void ketTyped(KeyEvent e)
+    {
+        if(e.getKeyCode() == KeyEvent.VK_LEFT)
+        {
+            setCoordinates(startTop, --startLeft);
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+            setCoordinates(++startTop, startLeft);
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+            setCoordinates(startTop, ++startLeft);
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_UP)
+        {
+            setCoordinates(--startTop, startLeft);
+        }
+    }
     public void paint(Graphics2D g)
     {
         for(int i = 0; i < row; i++)
@@ -86,5 +123,18 @@ public class Figure {
                     boxMap[i][j].paint(g);
             }
         }
+    }
+
+    public int getLeft() {
+        return startLeft;
+    }
+
+    public int getTop() {
+        return startTop;
+    }
+
+    public boolean isMovable()
+    {
+        return movable;
     }
 }

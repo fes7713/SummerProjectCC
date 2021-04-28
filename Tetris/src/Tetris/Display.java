@@ -12,17 +12,12 @@ public class Display extends JPanel {
     private int boxWidth;
     private int startPos;
 
-    private Box boxTest;
-    private Figure figureTest;
-
     Game game;
 
 
     public Display(Game game)
     {
         this.game = game;
-        boxTest = new Box(game, game.getSTART_POS(), game.getSTART_POS(), game.getBOX_SIZE(), game.getBOX_SIZE());
-        figureTest = new Figure(game, 2, 2, 4, 4);
 
         row = game.getMAX_ROW();
         col = game.getMAX_COL();
@@ -32,18 +27,26 @@ public class Display extends JPanel {
         KeyListener kl = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
+                for(Figure fig: game.getFigures())
+                {
+                    if(fig.isMovable())
+                        fig.ketTyped(e);
+                }
             }
 
             @Override
             public void keyPressed(KeyEvent e)
             {
-                boxTest.keyPressed(e);
+                for(Figure fig: game.getFigures())
+                {
+                    if(fig.isMovable())
+                        fig.ketTyped(e);
+                }
             }
 
             @Override
             public void keyReleased(KeyEvent e)
             {
-                boxTest.keyReleased(e);
             }
         };
         addKeyListener(kl);
@@ -51,25 +54,24 @@ public class Display extends JPanel {
         getWidth();
     }
 
-    public Box getBoxTest()
-    {
-        return boxTest;
-    }
 
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        // Draw figures
+        for(Figure fig: game.getFigures())
+        {
+            fig.paint(g2d);
+        }
+
         // Grid Function (Eriya)
         gridDraw(g2d);
-        // Draw boxes
-        boxTest.paint(g2d);
-        figureTest.paint(g2d);
 
         // Pos display
-        g2d.drawString("Row :" + String.valueOf(boxTest.getRow()), getWidth()-60, 20);
-        g2d.drawString("Column :" + String.valueOf(boxTest.getColumn()), getWidth()-60, 40);
+        g2d.drawString("Row :" + String.valueOf(game.getFigures().get(0).getTop()), getWidth()-60, 20);
+        g2d.drawString("Column :" + String.valueOf(game.getFigures().get(0).getLeft()), getWidth()-60, 40);
     }
 
     public void gridDraw(Graphics2D g)

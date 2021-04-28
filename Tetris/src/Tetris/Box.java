@@ -67,12 +67,7 @@ public class Box {
 
     }
 
-    public void keyPressed(KeyEvent e)
-    {
-
-    }
-
-    public void keyReleased(KeyEvent e)
+    public void ketTyped(KeyEvent e)
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
