@@ -9,7 +9,7 @@ public class Game {
     private int MAX_ROW = 20;
     private int MAX_COL = 10;
     private final int BOX_SIZE = 30;
-    private final int  START_POS = 20;
+    private final int  START_POS = 50;
 
     private int[][] map;
     private Display display;
@@ -30,7 +30,7 @@ public class Game {
         JFrame frame = new JFrame("Simple game");
         display = new Display(this);
         frame.add(display);
-        frame.setSize(500, 700);
+        frame.setSize(600, 800);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
@@ -99,7 +99,7 @@ public class Game {
 
         // Test game. Use arrow keys to move figures
 //        game.add(new Figure(game, 1, 1, 1, 1, true));
-        game.add(new Figure(game, 4, 5, 3, 4, true));
+        game.add(new Figure(game, 0, 0, 1, 1, true));
 
         boolean[][] testBoxMap = {
                 {false, true, true},
