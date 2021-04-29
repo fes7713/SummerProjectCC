@@ -51,7 +51,7 @@ public class Figure {
     }
 
 
-
+    // Done
     // Set up box map, When true, show box. When false, hide box.
     // In the constructor, default is true so everything is shown.
     // But by using this function, you can update the box map configuration.
@@ -70,6 +70,7 @@ public class Figure {
         }
     }
 
+    // Done
     // Update all of box coordinates.
     public void setCoordinates(int startTop, int startLeft)
     {
@@ -82,19 +83,6 @@ public class Figure {
         }
     }
 
-    // Not working // Somebody make this
-    // Maybe we dont even need this one.
-//    public void move(){
-//        for(int i = 0; i < row; i++)
-//        {
-//            for(int j = 0; j < column; j++)
-//            {
-//
-//            }
-//        }
-//    }
-
-
 
     // https://strategywiki.org/wiki/Tetris/Rotation_systems
     // Use Super rotation system
@@ -104,6 +92,7 @@ public class Figure {
 
     }
 
+    // WIP
     // Somebody make this
     // Use this to check if figures are overlapping at the destination before actually moving the figure in keyTyped func.
     public boolean intersect(Figure fig)
@@ -112,6 +101,7 @@ public class Figure {
     }
 
 
+    // WIP
     // Combine two figure and create one bif figure.
     // It is used to make ground block. Like when figure hits ground, ground gets bigger and become one block.
     // It is better way of managing figure because we dont need to keep many figures.
@@ -120,6 +110,7 @@ public class Figure {
 
     }
 
+    // Need Update
     // Unchecked intersection or wall bound
     // Get key event and update figure positions.
     public void keyPressed(KeyEvent e)
@@ -141,7 +132,7 @@ public class Figure {
         }
     }
 
-
+    // Done
     public void paint(Graphics2D g)
     {
         for(int i = 0; i < row; i++)

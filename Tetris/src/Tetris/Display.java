@@ -15,6 +15,7 @@ public class Display extends JPanel {
 
     Game game;
 
+    // Done
     public Display(Game game)
     {
         this.game = game;
@@ -52,6 +53,7 @@ public class Display extends JPanel {
     }
 
 
+    // Need update
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
@@ -65,6 +67,12 @@ public class Display extends JPanel {
 
         // Grid Function (Eriya)
         gridDraw(g2d);
+
+        // Draw Wall
+        drawWall(g2d);
+
+        // Draw Score Board;
+        game.getScoreBoard().paint(g2d);
 
         // Pos display // Test String Draw, delete in the release edition.
         g2d.drawString("Row :" + String.valueOf(game.getFigures().get(0).getTop()), getWidth()-60, 20);
@@ -82,6 +90,12 @@ public class Display extends JPanel {
         for (int i = 0; i <= row; i++) {
             g.drawLine(startPos, startPos + (boxWidth * i), startPos + (boxWidth * col), startPos + (boxWidth * i));
         }
+    }
+
+    // WIP
+    public void drawWall(Graphics2D g)
+    {
+
     }
 }
 

@@ -14,7 +14,9 @@ public class Game {
     private int[][] map;
     private Display display;
     private ArrayList<Figure> figures;
+    private ScoreBoard score = new ScoreBoard();
 
+    // Done
     public Game()
     {
         // If you want u can use 2D map to represent the tetris table
@@ -39,11 +41,32 @@ public class Game {
         figures.add(fig);
     }
 
+    // WIP
+    // Main run function
+    public void run() throws InterruptedException {
+        gameInit();
+        while(true)
+        {
+            // Display class is responsible for updating the game display.
+            this.display.repaint();
+            Thread.sleep(70);
+        }
+    }
+
+    // WIP
+    // Set up display, score board and generate first block.
+    private void gameInit()
+    {
+
+    }
+
+    // Done
     public List<Figure> getFigures()
     {
         return figures;
     }
 
+    // Done
     public int getMAX_ROW() {
         return MAX_ROW;
     }
@@ -60,10 +83,17 @@ public class Game {
         return START_POS;
     }
 
+    public ScoreBoard getScoreBoard()
+    {
+        return score;
+    }
+
+    // Maybe Delete
     public int[][] getMap() {
         return map;
     }
 
+    // Test main
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
 
@@ -78,11 +108,6 @@ public class Game {
         };
         game.add(new Figure(game, testBoxMap, 1, 3, true));
 
-        while(true)
-        {
-            // Display class is responsible for updating the game display.
-            game.display.repaint();
-            Thread.sleep(70);
-        }
+        game.run();
     }
 }
