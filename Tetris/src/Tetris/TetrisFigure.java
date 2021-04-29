@@ -4,76 +4,62 @@ package Tetris;
 // Use switch statement if you want.
 public class TetrisFigure extends Figure
 {
-    public TetrisFigure(Game game) 
+    static final boolean[][] figI = {
+            {false, true, false, false},
+            {false, true, false, false},
+            {false, true, false, false},
+            {false, true, false, false}
+    };
+
+    static final boolean[][] figJ = {
+            {false, true, false},
+            {false, true, false},
+            {true, true, false}
+    };
+
+    static final boolean[][] figL = {
+            {false, true, false},
+            {false, true, false},
+            {false, true, true}
+    };
+
+    static final boolean[][] figO = {
+            {true, true, false},
+            {true, true, false},
+            {false, false, false}
+    };
+
+    static final boolean[][] figS = {
+            {false, true, true},
+            {true, true, false},
+            {false, false, false}
+    };
+
+    static final boolean[][] figZ = {
+            {true, true, false},
+            {false, true, true},
+            {false, false, false},
+    };
+
+    static final boolean[][] figT = {
+            {true, true, true},
+            {false, true, false},
+            {false, false, false},
+    };
+    public TetrisFigure(Game game, BlockType blockType)
     {
-        super(game);
+        super(game, true);
+        switch(blockType)
+        {
+            case I -> setMap(figI);
+            case J -> setMap(figJ);
+            case L -> setMap(figL);
+            case O -> setMap(figO);
+            case S -> setMap(figS);
+            case T -> setMap(figT);
+            case Z -> setMap(figZ);
+        }
+
         
-    }
-    
-    public void figI(Game game)
-    {
-        boolean[][] fig = {
-                {false, true, false},
-                {false, true, false},
-                {false, true, false},
-                {false, true, false}
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figJ(Game game)
-    {
-        boolean[][] fig = {
-                {false, true, false},
-                {false, true, false},
-                {true, true, false}
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figL(Game game)
-    {
-        boolean[][] fig = {
-                {false, true, false},
-                {false, true, false},
-                {false, true, true}
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figS(Game game)
-    {
-        boolean[][] fig = {
-                {false, true, true},
-                {true, true, false},
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figZ(Game game)
-    {
-        boolean[][] fig = {
-                {true, true, false},
-                {false, true, true},
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figT(Game game)
-    {
-        boolean[][] fig = {
-                {true, true, true},
-                {false, true, false},
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
-    }
-    
-    public void figO(Game game)
-    {
-        boolean[][] fig = {
-                {true, true, false},
-                {true, true, false},
-        };
-        game.add(new Figure(game, fig, 4, 0, true));
     }
 }

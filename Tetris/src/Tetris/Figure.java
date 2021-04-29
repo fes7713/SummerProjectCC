@@ -16,9 +16,20 @@ public class Figure {
 
 
     // Constructors with different signatures.
-    public Figure(Game game)
+    public Figure(Game game, boolean movable)
     {
-        this(game, 0, 0, game.getMAX_ROW() , game.getMAX_COL(), false);
+        this.game = game;
+        startLeft = 0;
+        startTop = 0;
+        this.movable = movable;
+    }
+
+    public Figure(Game game, int startLeft, int startTop)
+    {
+        this.game = game;
+        this.startLeft = startLeft;
+        this.startTop = startTop;
+        movable = false;
     }
 
     public Figure(Game game, int row, int column, boolean movable)
@@ -28,11 +39,9 @@ public class Figure {
 
     public Figure(Game game, int startLeft, int startTop, int row, int column, boolean movable)
     {
-        this.game = game;
+        this(game, startLeft, startTop);
         this.row = row;
         this.column = column;
-        this.startLeft = startLeft;
-        this.startTop = startTop;
         this.movable = movable;
         boxMap = new Box[row][column];
         for(int i = 0; i < row; i++)
@@ -46,7 +55,8 @@ public class Figure {
 
     public Figure(Game game, boolean[][] mapConfig, int startLeft, int startTop, boolean movable)
     {
-        this(game, startLeft, startTop, mapConfig.length, mapConfig[0].length, movable);
+        this(game, startLeft, startTop);
+        this.movable = movable;
         setMap(mapConfig);
     }
 
@@ -57,10 +67,18 @@ public class Figure {
     // But by using this function, you can update the box map configuration.
     public void setMap(boolean[][] mapConfig)
     {
-        if(mapConfig.length != boxMap.length && mapConfig[0].length != boxMap[0].length)
+        row = mapConfig.length;
+        column = mapConfig[0].length;
+        boxMap = new Box[row][column];
+
+        for(int i = 0; i < row; i++)
         {
-            throw new IndexOutOfBoundsException("Map Dimension does not match");
+            for(int j = 0; j < column; j++)
+            {
+                boxMap[i][j] = new Box(game, i + startTop, j + startLeft);
+            }
         }
+
         for(int i = 0; i < row; i++)
         {
             for(int j = 0; j < column; j++)
