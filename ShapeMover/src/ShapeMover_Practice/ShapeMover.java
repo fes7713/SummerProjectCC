@@ -18,7 +18,7 @@ public class ShapeMover {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Shape Mover");
 
-        initComponents(frame);
+        frame.add(new DragPanel());
 
         frame.pack();
         frame.setVisible(true);
@@ -32,10 +32,6 @@ public class ShapeMover {
             }
         });
 
-    }
-
-    private void initComponents(JFrame frame) {
-        frame.getContentPane().add(new DragPanel());
     }
 }
 

@@ -1,4 +1,5 @@
-package ImageDisplay;
+package Poker;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,10 +37,8 @@ public class Display extends JPanel {
     public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("Simple game");
         Display game = new Display();
-        MyPanel panel = new MyPanel();
-        frame.add(panel);
-//        frame.setSize(500, 700);
-        frame.pack();
+
+        frame.setSize(800, 400);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         System.out.println(frame.getContentPane().getWidth());
