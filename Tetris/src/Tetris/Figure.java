@@ -89,14 +89,33 @@ public class Figure {
     // WIP // Somebody make this
     public void rotate()
     {
-
+        Box[][] newBoxMap = new Box[boxMap[0].length][boxMap.length];
+        for(int i = 0; i < boxMap.length; i++)
+        {
+            for(int j = 0; j < boxMap[0].length; j++)
+            {
+                newBoxMap[j][boxMap.length - i - 1] = boxMap[i][j];
+            }
+        }
+        boxMap = newBoxMap;
+        row = boxMap.length;
+        column = boxMap[0].length;
     }
 
     // WIP
     // Somebody make this
     // Use this to check if figures are overlapping at the destination before actually moving the figure in keyTyped func.
-    public boolean intersect(Figure fig)
+    public boolean intersect(int addX, int addY)
     {
+        Rectangle rect = new Rectangle(startLeft + addX, startTop + addY, column, row);
+        for(Figure fig : game.getFigures())
+        {
+            Rectangle rect1 = new Rectangle(fig.getLeft(), fig.getTop(), fig.getColumn(), fig.getRow());
+            if(rect.intersects(rect1))
+            {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -107,7 +126,18 @@ public class Figure {
     // It is better way of managing figure because we dont need to keep many figures.
     public void combine(Figure fig)
     {
+        int left, top;
+        if(startLeft < fig.getLeft())
+            left = startLeft;
+        else
+            left = fig.getLeft();
 
+        if(startTop < fig.getTop())
+            top = startTop;
+        else
+            top = fig.getTop();
+
+//        Box[][]newBoxMap = new Box[][];
     }
 
     // Need Update
@@ -117,10 +147,12 @@ public class Figure {
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
-            setCoordinates(startTop, --startLeft);
+//            if(!intersect(-1, 0))
+                setCoordinates(startTop, --startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-            setCoordinates(++startTop, startLeft);
+//            if(!intersect(-1, 0))
+                setCoordinates(++startTop, startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
@@ -128,7 +160,9 @@ public class Figure {
         }
         else if(e.getKeyCode() == KeyEvent.VK_UP)
         {
-            setCoordinates(--startTop, startLeft);
+            rotate();
+            setCoordinates(startTop, ++startLeft);
+            setCoordinates(startTop, --startLeft);
         }
     }
 
@@ -151,6 +185,14 @@ public class Figure {
 
     public int getTop() {
         return startTop;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
     }
 
     public boolean isMovable()

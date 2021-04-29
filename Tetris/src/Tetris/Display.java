@@ -42,6 +42,7 @@ public class Display extends JPanel {
                     if(fig.isMovable())
                         fig.keyPressed(e);
                 }
+                repaint();
             }
 
             @Override
@@ -51,7 +52,6 @@ public class Display extends JPanel {
         addKeyListener(kl);
         setFocusable(true);
     }
-
 
     // Need update
     public void paint(Graphics g) {
