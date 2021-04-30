@@ -1,8 +1,10 @@
 package Poker;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
-public class Hand implements Comparable<Hand>{
+public class Hand implements Comparable<Hand>, Iterable<Card>{
     private final List<Card> hand;
     private int size;
     private PokerHand strength;
@@ -46,6 +48,20 @@ public class Hand implements Comparable<Hand>{
 
         return hand.get(index);
     }
+
+    public List<Integer> getKickers()
+    {
+        return kickers;
+    }
+
+    public void addCard(Card card)
+    {
+        hand.add(card);
+        strength = evalHand();
+        size++;
+    }
+
+
 
     public void sort()
     {
@@ -517,51 +533,6 @@ public class Hand implements Comparable<Hand>{
         return PokerHand.HIGH_CARD;
     }
 
-    public void addCard(Card card)
-    {
-        hand.add(card);
-        strength = evalHand();
-        size++;
-    }
-
-    public List<Integer> getKickers()
-    {
-        return kickers;
-    }
-
-    private int compareNumbers(Hand h)
-    {
-        sort();
-        h.sort();
-        for(int i = 0; i < size; i++)
-        {
-            if(hand.get(i).getNumber() == h.get(i).getNumber())
-                continue;
-            else
-            {
-                return hand.get(i).getNumber() - h.get(i).getNumber();
-            }
-        }
-        return 0;
-    }
-
-    private int getHighestConsecutive(List<Card> hand, int nCons)
-    {
-        int count = 0;
-        for(int i = hand.size() - 1; i > 0; i--)
-        {
-            if(hand.get(i).getNumber() == hand.get(i - 1).getNumber())
-                count++;
-            else
-                count = 0;
-            if(count >= nCons - 1)
-            {
-                return hand.get(i).getNumber();
-            }
-        }
-
-        throw new IndexOutOfBoundsException("Error Input");
-    }
 
     @Override
     public int compareTo(Hand h)
@@ -593,6 +564,16 @@ public class Hand implements Comparable<Hand>{
 
         }
         return 0;
+    }
+
+    public Iterator<Card> iterator()
+    {
+        return hand.listIterator();
+    }
+
+    public void paint(Graphics2D g)
+    {
+
     }
 
     public String toString()
@@ -681,6 +662,8 @@ public class Hand implements Comparable<Hand>{
         }
 
     }
+
+
 
     public static void main(String[] args)
     {

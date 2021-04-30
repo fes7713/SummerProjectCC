@@ -6,7 +6,7 @@ import java.util.List;
 public class Game {
     static final int HAND_SIZE = 2;
     static final int COMMUNITY_CARDS_SIZE = 5;
-    static final int nPlayers = 3;
+    static final int nPlayers = 1;
     private final int INITIAL_MONEY = 100000;
     private List<Player> players;
     private Deck deck;
@@ -14,18 +14,20 @@ public class Game {
     private Money pot;
     private Money BigBlind;
     private Player startPlayer;
+    private Display display;
 
     public Game()
     {
         players = new ArrayList<>();
         for(int i = 0; i < nPlayers; i++)
-            players.add(new Player(INITIAL_MONEY));
+            players.add(new Player(INITIAL_MONEY, true));
 
         deck = new Deck();
         communityCards = new Hand();
         pot = new Money(0);
         BigBlind = new Money(0);
         startPlayer = players.get(0);
+        display = new Display();
     }
     public Money getPot()
     {
@@ -34,6 +36,10 @@ public class Game {
 
     public void betting()
     {
+        int count = 0;
+        while(true)
+        {
 
+        }
     }
 }
