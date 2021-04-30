@@ -10,6 +10,7 @@ public class Deck {
     public Deck()
     {
         deck = new Stack<>();
+        fill();
     }
 
     public void fill()

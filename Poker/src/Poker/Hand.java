@@ -47,21 +47,6 @@ public class Hand implements Comparable<Hand>{
         return hand.get(index);
     }
 
-    public List<Card> getHand() {
-        return hand;
-    }
-
-    public void drawCards(Deck deck, int size)
-    {
-        for(int i = 0; i < size; i++)
-        {
-            hand.add(deck.pop());
-        }
-        strength = evalHand();
-        this.size++;
-        strength = evalHand();
-    }
-
     public void sort()
     {
         Collections.sort(hand);
