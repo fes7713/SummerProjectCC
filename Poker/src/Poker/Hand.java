@@ -50,10 +50,15 @@ public class Hand implements Comparable<Hand>{
 
     public void setSortOrder(SortOrder order)
     {
-        for(Card card: hand)
+        int n = hand.size();
+        for(int i = 0; i < n; i++)
         {
-            card.setSortOrder(order);
+            hand.get(i).setSortOrder(order);
         }
+//        for(Card card: hand)
+//        {
+//            card.setSortOrder(order);
+//        }
     }
 
     public boolean contains(Card card)
@@ -70,13 +75,7 @@ public class Hand implements Comparable<Hand>{
 
     public PokerHand evalHand()
     {
-        int stop = 0;
-//        if(toString().equals("[Spade A, Spade 2, Spade 9, Spade 10, Spade J, Spade Q, Spade K]"))
-//            stop = 0;
         boolean straight = false;
-        boolean three = false;
-        boolean two_pair = false;
-        boolean pair = false;
         boolean flush = false;
         boolean straight_flush = false;
         int consecutive = 0;
@@ -103,8 +102,6 @@ public class Hand implements Comparable<Hand>{
         {
             flush = true;
         }
-
-
 
         setSortOrder(SortOrder.ID);
         sort();
@@ -144,33 +141,6 @@ public class Hand implements Comparable<Hand>{
         sort();
         consecutive = 0;
 
-        // Straight
-//        for(int i = hand.size() - 1; i >= 1; i--)
-        for(int i = 0; i < hand.size() - 1; i++)
-        {
-            if(hand.get(i).compareTo(hand.get(i + 1)) == 0)
-                continue;
-            if(hand.get(i).compareTo(hand.get(i + 1)) == -1)
-            {
-                consecutive++;
-                if(hand.get(i).getNumber() == 11 &&
-                        hand.get(0).getNumber() == 0)
-                    consecutive++;
-            }
-            else
-            {
-                if(consecutive >= EVAL_SIZE - 1)
-                {
-                    straight = true;
-                }
-                consecutive = 0;
-            }
-        }
-        if(consecutive >= EVAL_SIZE - 1)
-        {
-            straight = true;
-        }
-
 
         int[] numFreq = new int[Card.MAX_NUMBER];
         for(int i = 0; i < Card.MAX_NUMBER; i++)
@@ -206,8 +176,34 @@ public class Hand implements Comparable<Hand>{
             return PokerHand.FULL_HOUSE;
         if(flush)
             return PokerHand.FLUSH;
-        if(straight)
+
+// Straight
+        for(int i = 0; i < hand.size() - 1; i++)
+        {
+            if(hand.get(i).compareTo(hand.get(i + 1)) == 0)
+                continue;
+            if(hand.get(i).compareTo(hand.get(i + 1)) == -1)
+            {
+                consecutive++;
+                if(hand.get(i).getNumber() == 11 &&
+                        hand.get(0).getNumber() == 0)
+                    consecutive++;
+            }
+            else
+            {
+                if(consecutive >= EVAL_SIZE - 1)
+                {
+                    straight = true;
+                }
+                consecutive = 0;
+            }
+        }
+
+        if(consecutive >= EVAL_SIZE - 1 || straight)
+        {
             return PokerHand.STRAIGHT;
+        }
+
         if(freqFreq[2] == 1)
             return PokerHand.THREE_OF_A_KIND;
         if(freqFreq[1] > 1)
