@@ -29,11 +29,6 @@ public class Hand implements Comparable<Hand>{
         }
     }
 
-    public int getSize()
-    {
-        return size;
-    }
-
     public PokerHand getStrength() {
         return strength;
     }
@@ -96,7 +91,6 @@ public class Hand implements Comparable<Hand>{
     public PokerHand evalHand()
     {
         int straight = -1;
-        int flush = -1;
         int straight_flush = -1;
         int consecutive;
 
@@ -179,7 +173,6 @@ public class Hand implements Comparable<Hand>{
             return PokerHand.FLUSH;
         }
 
-
 // Straight
         for(int i = 1; i < hand.size(); i++)
         {
@@ -226,14 +219,13 @@ public class Hand implements Comparable<Hand>{
     public PokerHand evalHandAccuracy()
     {
         int straight = -1;
-        int flush = -1;
         int straight_flush = -1;
         int consecutive;
 
         setSortOrder(SortOrder.ID);
         sort();
         consecutive = 0;
-        // Straight Flush
+// Straight Flush
         for(int i = 1; i < hand.size(); i++)
         {
             if(hand.get(i).compareTo(hand.get(i - 1)) == 0)
@@ -295,6 +287,13 @@ public class Hand implements Comparable<Hand>{
                 }
             }
 
+            // Ace High
+            if(numFreq[0] >= 1)
+            {
+                kickers.add(0);
+                return PokerHand.FOUR_OF_A_KIND;
+            }
+
             for(int i = Card.MAX_NUMBER - 1; i >= 0; i--)
             {
                 if(numFreq[i] != 4)
@@ -311,6 +310,16 @@ public class Hand implements Comparable<Hand>{
         {
             boolean first = true;
             int keep_2 = -1;
+
+            // Ace High
+            if(numFreq[0] == 2)
+                keep_2 = 0;
+            else if(numFreq[0] == 3)
+            {
+                kickers.add(0);
+                first = false;
+            }
+
             for(int i = Card.MAX_NUMBER - 1; i >= 0; i--)
             {
                 // 2-2(two pair, second)
@@ -364,11 +373,16 @@ public class Hand implements Comparable<Hand>{
         }
         if(suitFreq[nMaxPosFlush] >= EVAL_SIZE)
         {
-//            kickers.add(nMaxPosFlush);
+            // Ace High
             int count = 0;
+            if(contains(new Card(0, nMaxPosFlush)))
+            {
+                kickers.add(0);
+                count++;
+            }
+
             for(int i = size - 1; i >= 0; i--)
             {
-
                 if(hand.get(i).getSuit() == nMaxPosFlush)
                 {
                     kickers.add(hand.get(i).getNumber());
@@ -420,8 +434,14 @@ public class Hand implements Comparable<Hand>{
                     break;
                 }
             }
-
-            for(int i = Card.MAX_NUMBER - 1, count = 0; i >= 0; i--) {
+            // Ace High
+            int count = 0;
+            if(numFreq[0] == 1)
+            {
+                kickers.add(0);
+                count++;
+            }
+            for(int i = Card.MAX_NUMBER - 1; i >= 0; i--) {
                 if(numFreq[i] == 1)
                 {
                     kickers.add(i);
@@ -435,7 +455,15 @@ public class Hand implements Comparable<Hand>{
         // Two pair
         if(freqFreq[2] > 1)
         {
-            for(int i = Card.MAX_NUMBER - 1, count = 0; i >= 0; i--)
+            // Ace High
+            int count = 0;
+            if(numFreq[0] == 2)
+            {
+                kickers.add(0);
+                count++;
+            }
+
+            for(int i = Card.MAX_NUMBER - 1; i >= 0; i--)
             {
                 if(numFreq[i] == 2)
                 {
@@ -445,7 +473,6 @@ public class Hand implements Comparable<Hand>{
                 if(count == 2)
                     break;
             }
-
             for(int i = Card.MAX_NUMBER - 1; i >= 0; i--) {
                 if(numFreq[i] == 1)
                 {
@@ -466,8 +493,15 @@ public class Hand implements Comparable<Hand>{
                     break;
                 }
             }
+            // Ace High
+            int count = 0;
+            if(numFreq[0] == 1)
+            {
+                kickers.add(0);
+                count++;
+            }
 
-            for(int i = Card.MAX_NUMBER - 1, count = 0; i >= 0; i--) {
+            for(int i = Card.MAX_NUMBER - 1; i >= 0; i--) {
                 if(numFreq[i] == 1)
                 {
                     kickers.add(i);
@@ -478,8 +512,15 @@ public class Hand implements Comparable<Hand>{
             }
         }
 
-        // High Card
-        for(int i = Card.MAX_NUMBER - 1, count = 0; i >= 0; i--) {
+// High Card
+        // Ace High
+        int count = 0;
+        if(numFreq[0] == 1)
+        {
+            kickers.add(0);
+            count++;
+        }
+        for(int i = Card.MAX_NUMBER - 1; i >= 0; i--) {
             if(numFreq[i] == 1)
             {
                 kickers.add(i);
@@ -541,62 +582,21 @@ public class Hand implements Comparable<Hand>{
     public int compareTo(Hand h)
     {
         if(strength == null)
-            strength = evalHand();
+            strength = evalHandAccuracy();
         if(h.getStrength() == null)
-            h.setStrength(h.evalHand());
+            h.setStrength(h.evalHandAccuracy());
 
 
         if(!strength.equals(h.getStrength()))
             return h.getStrength().getId() - strength.getId();
 
-        switch(strength)
+        for(int i = 0; i < kickers.size() && i < h.getKickers().size(); i++)
         {
+            int n1 = kickers.get(i);
+            int n2 = h.getKickers().get(i);
 
-            case ROYAL_FLUSH -> {
-                return 0;
-            }
-            case STRAIGHT_FLUSH -> {
-                if(kickers.get(0) == h.getKickers().get(0))
-                    return compareNumbers(h);
-                else
-                    return kickers.get(0) - h.getKickers().get(0);
-            }
-            case FOUR_OF_A_KIND -> {
-                sort();
-                h.sort();
-                int kicker1 = getHighestConsecutive(hand, 4);
-                int kicker2 = getHighestConsecutive(h.getHand(), 4);
-
-                return kicker1 - kicker2;
-            }
-            case FULL_HOUSE -> {
-                sort();
-                h.sort();
-                int kicker1 = getHighestConsecutive(hand, 3);
-                int kicker2 = getHighestConsecutive(h.getHand(), 3);
-
-                if(kicker1 != kicker2)
-                    return kicker1 - kicker2;
-
-                for(int i = 0; i < hand.size(); i++)
-                {
-
-                }
-            }
-            case FLUSH -> {
-            }
-            case ACE_HIGH_STRAIGHT -> {
-            }
-            case STRAIGHT -> {
-            }
-            case THREE_OF_A_KIND -> {
-            }
-            case TWO_PAIR -> {
-            }
-            case PAIR -> {
-            }
-            case HIGH_CARD -> {
-            }
+            if(n1 != n2)
+                return n1 - n2;
         }
         return 0;
     }
@@ -607,7 +607,7 @@ public class Hand implements Comparable<Hand>{
         sb.append("[").append(hand.get(0));
         for(int i = 1; i < hand.size(); i++)
         {
-            sb.append(", " + hand.get(i).toString());
+            sb.append(", ").append(hand.get(i).toString());
         }
         sb.append("]");
         return sb.toString();
@@ -615,7 +615,7 @@ public class Hand implements Comparable<Hand>{
 
     public void testHands()
     {
-        Map<PokerHand, Integer> ans7 = new HashMap();
+        Map<PokerHand, Integer> ans7 = new HashMap<>();
         ans7.put(PokerHand.ROYAL_FLUSH, 4324);
         ans7.put(PokerHand.STRAIGHT_FLUSH, 37260);
         ans7.put(PokerHand.FOUR_OF_A_KIND, 224848);
@@ -634,8 +634,7 @@ public class Hand implements Comparable<Hand>{
             frequency.put(strength, 0);
         }
         Hand hand1;
-        int stop = 0;
-        int count = 0;
+
 
         for(int i = 0; i < Deck.SIZE; i++)
         {
@@ -652,21 +651,11 @@ public class Hand implements Comparable<Hand>{
                             {
                                 for(int y = 0; y < x; y++)
                                 {
-//                                    if(count == 662293)
-//                                        stop = 1;
                                     hand1 = new Hand(new int[]{y, x, q, p, k, j, i});
-//                                    PokerHand strength = hand1.evalHand();
 
                                     PokerHand strength1 = hand1.evalHandAccuracy();
-//                                    if(strength == PokerHand.FOUR_OF_A_KIND && strength != strength1)
-//                                    {
-//                                        System.out.println(count);
-//                                        System.out.println(hand1);
-//                                        System.out.println("Ans :" + strength + " Test :" + strength1);
-//                                    }
-
+//                                    PokerHand strength2 = hand1.evalHand();
                                     frequency.put(strength1, frequency.get(strength1)+1);
-                                    count++;
                                 }
                             }
                         }
@@ -678,12 +667,13 @@ public class Hand implements Comparable<Hand>{
         System.out.println();
         System.out.println(frequency);
 
+        int count = 0;
         for(Integer n : frequency.values())
         {
             count += n;
         }
         System.out.println(count);
-        System.out.println("Ans "  + String.valueOf(ans7.equals(frequency)));
+        System.out.println("Ans "  + ans7.equals(frequency));
 
         for(PokerHand pk : PokerHand.values())
         {
@@ -701,39 +691,10 @@ public class Hand implements Comparable<Hand>{
     public static void main(String[] args)
     {
 
-        Hand hand = new Hand(new int[]{4, 17, 30, 43, 11, 12, 13});
-
-
-//        for(int i = 0; i < 52; i++)
-//        {
-//            for(int j = 0; j < 52; j++)
-//            {
-//                if(i != 4 && i != 17 && i != 30 && i != 43 && j != i && j != 4 && j != 17 && j != 30 && j != 43)
-//                {
-//
-//                    Hand hand1 = new Hand(new int[]{4, 17, 30, 43, 11, j, i});
-//                    if(hand1.evalHandAccuracy() != PokerHand.FOUR_OF_A_KIND)
-//                        System.out.println(hand1);
-////                    System.out.println(hand1.getKickers());
-//                }
-//            }
-
-
-
-
-//        }
-
-
-//        System.out.print("Hand 1:");
-//        System.out.println(hand);
-//        System.out.print("Hand 2:");
-//        System.out.println(hand1);
-//        if(hand.compareTo(hand1) > 0)
-//            System.out.println("Player 1 win with " + hand.evalHand());
-//        else
-//            System.out.println("Player 2 win with " + hand1.evalHand());
-
-        System.out.println();
+        Hand hand = new Hand(new int[]{0, 5, 3, 2, 1, 13, 8});
+        System.out.println(hand);
+        System.out.println(hand.evalHandAccuracy());
+        System.out.println(hand.getKickers());
         hand.testHands();
     }
 
