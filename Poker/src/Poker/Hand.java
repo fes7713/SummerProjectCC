@@ -586,7 +586,6 @@ public class Hand implements Comparable<Hand>{
         if(h.getStrength() == null)
             h.setStrength(h.evalHandAccuracy());
 
-
         if(!strength.equals(h.getStrength()))
             return h.getStrength().getId() - strength.getId();
 
@@ -596,7 +595,17 @@ public class Hand implements Comparable<Hand>{
             int n2 = h.getKickers().get(i);
 
             if(n1 != n2)
+            {
+                if(i <= 1)
+                {
+                    if(n1 == 0)
+                        return 1;
+                    else if(n2 == 0)
+                        return -1;
+                }
                 return n1 - n2;
+            }
+
         }
         return 0;
     }
@@ -691,11 +700,16 @@ public class Hand implements Comparable<Hand>{
     public static void main(String[] args)
     {
 
-        Hand hand = new Hand(new int[]{0, 5, 3, 2, 1, 13, 8});
-        System.out.println(hand);
-        System.out.println(hand.evalHandAccuracy());
-        System.out.println(hand.getKickers());
-        hand.testHands();
+        Hand hand1 = new Hand(new int[]{0, 5, 3, 2, 1, 13, 8});
+        Hand hand2 = new Hand(new int[]{0, 5, 3, 2, 1, 13, 9});
+        System.out.println(hand1 + " :" +  hand1.evalHandAccuracy() + " " + hand1.getKickers());
+        System.out.println(hand2 + " :" +  hand2.evalHandAccuracy() + " " + hand2.getKickers());
+        if(hand1.compareTo(hand2) > 0)
+            System.out.println("Player 1 win");
+        else
+            System.out.println("Player 2 win");
+        System.out.println(hand1.getKickers());
+//        hand.testHands();
     }
 
 }
