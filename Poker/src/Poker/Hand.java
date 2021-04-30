@@ -22,7 +22,8 @@ public class Hand implements Comparable<Hand>{
     public Hand(int[] cards)
     {
         this();
-        for(int i = 0; i < cards.length; i++)
+        size = cards.length;
+        for(int i = 0; i < size; i++)
         {
             hand.add(new Card(cards[i]));
         }
@@ -77,7 +78,7 @@ public class Hand implements Comparable<Hand>{
     {
         boolean straight = false;
         boolean flush = false;
-        boolean straight_flush = false;
+        int straight_flush = -1;
         int consecutive = 0;
 
         // Flush
@@ -123,19 +124,24 @@ public class Hand implements Comparable<Hand>{
             {
                 if(consecutive >= EVAL_SIZE - 1)
                 {
-                    straight_flush = true;
+                    straight_flush = hand.get(i + 1).getNumber();
                 }
                 consecutive = 0;
             }
         }
 
+        // Potentially Error
         if(consecutive >= EVAL_SIZE - 1)
         {
-            straight_flush = true;
+            straight_flush = hand.get(size - 1).getNumber();
         }
 
-        if(straight_flush)
+        if(straight_flush != -1)
+        {
+            kickers.add(straight_flush);
             return PokerHand.STRAIGHT_FLUSH;
+        }
+
 
         setSortOrder(SortOrder.NUMBER);
         sort();
