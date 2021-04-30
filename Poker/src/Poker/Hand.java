@@ -108,32 +108,26 @@ public class Hand implements Comparable<Hand>{
         sort();
         consecutive = 0;
         // Straight Flush
-        for(int i = 0; i < hand.size() - 1; i++)
+        for(int i = 1; i < hand.size(); i++)
         {
-            if(hand.get(i).compareTo(hand.get(i + 1)) == 0)
+            if(hand.get(i).compareTo(hand.get(i - 1)) == 0)
                 continue;
-            if(hand.get(i).compareTo(hand.get(i + 1)) == -1 && hand.get(i).getSuit() == hand.get(i + 1).getSuit())
+            if(hand.get(i).compareTo(hand.get(i - 1)) == 1 && hand.get(i).getSuit() == hand.get(i - 1).getSuit())
             {
                 consecutive++;
-                if(consecutive >= 3 && hand.get(i).getNumber() == 11 && hand.contains(new Card(0, hand.get(i).getSuit())))
+                if(consecutive >= 3 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
                     return PokerHand.ROYAL_FLUSH;
+                }
+                if(consecutive >= EVAL_SIZE - 1)
+                {
+                    straight_flush = hand.get(i).getNumber();
                 }
             }
             else
             {
-                if(consecutive >= EVAL_SIZE - 1)
-                {
-                    straight_flush = hand.get(i + 1).getNumber();
-                }
                 consecutive = 0;
             }
-        }
-
-        // Potentially Error
-        if(consecutive >= EVAL_SIZE - 1)
-        {
-            straight_flush = hand.get(size - 1).getNumber();
         }
 
         if(straight_flush != -1)
@@ -264,6 +258,18 @@ public class Hand implements Comparable<Hand>{
 
     public void testHands()
     {
+        Map<PokerHand, Integer> ans7 = new HashMap();
+        ans7.put(PokerHand.ROYAL_FLUSH, 4324);
+        ans7.put(PokerHand.STRAIGHT_FLUSH, 37260);
+        ans7.put(PokerHand.FOUR_OF_A_KIND, 224848);
+        ans7.put(PokerHand.FULL_HOUSE, 3473184);
+        ans7.put(PokerHand.FLUSH, 4047644);
+        ans7.put(PokerHand.STRAIGHT, 6180020);
+        ans7.put(PokerHand.THREE_OF_A_KIND, 6461620);
+        ans7.put(PokerHand.TWO_PAIR, 31433400);
+        ans7.put(PokerHand.PAIR, 58627800);
+        ans7.put(PokerHand.HIGH_CARD, 23294460);
+
         Map<PokerHand, Integer> frequency = new HashMap<>();
         for(PokerHand strength: PokerHand.values())
         {
@@ -313,10 +319,12 @@ public class Hand implements Comparable<Hand>{
             count += n;
         }
         System.out.println(count);
+        System.out.println("Ans "  + String.valueOf(ans7.equals(frequency)));
     }
 
     public static void main(String[] args)
     {
+
         Hand hand = new Hand(new int[]{24, 10, 23, 35, 8, 7});
 
 
