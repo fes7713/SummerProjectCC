@@ -6,11 +6,12 @@ public enum PokerHand {
     FOUR_OF_A_KIND(2),
     FULL_HOUSE(3),
     FLUSH(4),
-    STRAIGHT(5),
-    THREE_OF_A_KIND(6),
-    TWO_PAIR(7),
-    PAIR(8),
-    HIGH_CARD(9);
+    ACE_HIGH_STRAIGHT(5),
+    STRAIGHT(6),
+    THREE_OF_A_KIND(7),
+    TWO_PAIR(8),
+    PAIR(9),
+    HIGH_CARD(10);
 
     private int id;
 

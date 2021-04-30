@@ -42,6 +42,7 @@ public class Hand implements Comparable<Hand>{
         }
         strength = evalHand();
         this.size++;
+        strength = evalHand();
     }
 
     public void sort()
@@ -56,10 +57,6 @@ public class Hand implements Comparable<Hand>{
         {
             hand.get(i).setSortOrder(order);
         }
-//        for(Card card: hand)
-//        {
-//            card.setSortOrder(order);
-//        }
     }
 
     public boolean contains(Card card)
@@ -76,33 +73,11 @@ public class Hand implements Comparable<Hand>{
 
     public PokerHand evalHand()
     {
-        boolean straight = false;
-        boolean flush = false;
+        int straight = -1;
+        int flush = -1;
         int straight_flush = -1;
         int consecutive = 0;
 
-        // Flush
-        setSortOrder(SortOrder.SUIT);
-        sort();
-        for(int i = 0; i < hand.size() - 1; i++)
-        {
-            if(hand.get(i).compareTo(hand.get(i + 1)) == 0)
-            {
-                consecutive++;
-            }
-            else
-            {
-                if(consecutive >= EVAL_SIZE - 1)
-                {
-                    flush = true;
-                }
-                consecutive = 0;
-            }
-        }
-        if(consecutive >= EVAL_SIZE - 1)
-        {
-            flush = true;
-        }
 
         setSortOrder(SortOrder.ID);
         sort();
@@ -115,7 +90,7 @@ public class Hand implements Comparable<Hand>{
             if(hand.get(i).compareTo(hand.get(i - 1)) == 1 && hand.get(i).getSuit() == hand.get(i - 1).getSuit())
             {
                 consecutive++;
-                if(consecutive >= 3 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
+                if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
                     return PokerHand.ROYAL_FLUSH;
                 }
@@ -174,33 +149,56 @@ public class Hand implements Comparable<Hand>{
             return PokerHand.FOUR_OF_A_KIND;
         if((freqFreq[2] >= 1 && freqFreq[1] >= 1) || freqFreq[2] >= 2)
             return PokerHand.FULL_HOUSE;
-        if(flush)
+
+
+        // Flush
+        int[] suitFreq = new int[Card.MAX_SUIT];
+        for(int i = 0; i < hand.size(); i++)
+        {
+            suitFreq[hand.get(i).getSuit()]++;
+        }
+
+        int nMaxPosFlush = 0;
+        for(int i = 0; i < Card.MAX_SUIT; i++)
+        {
+            if(suitFreq[i] > suitFreq[nMaxPosFlush])
+            {
+                nMaxPosFlush = i;
+            }
+        }
+        if(suitFreq[nMaxPosFlush] >= EVAL_SIZE)
+        {
+            kickers.add(nMaxPosFlush);
             return PokerHand.FLUSH;
+        }
+
 
 // Straight
-        for(int i = 0; i < hand.size() - 1; i++)
+        for(int i = 1; i < hand.size(); i++)
         {
-            if(hand.get(i).compareTo(hand.get(i + 1)) == 0)
+            if(hand.get(i).compareTo(hand.get(i - 1)) == 0)
                 continue;
-            if(hand.get(i).compareTo(hand.get(i + 1)) == -1)
+            if(hand.get(i).compareTo(hand.get(i - 1)) == 1)
             {
                 consecutive++;
-                if(hand.get(i).getNumber() == 11 &&
-                        hand.get(0).getNumber() == 0)
-                    consecutive++;
+                if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.get(0).getNumber() == 0)
+                {
+                    return PokerHand.ACE_HIGH_STRAIGHT;
+                }
+                if(consecutive >= EVAL_SIZE - 1)
+                {
+                    straight = hand.get(i).getNumber();
+                }
             }
             else
             {
-                if(consecutive >= EVAL_SIZE - 1)
-                {
-                    straight = true;
-                }
                 consecutive = 0;
             }
         }
 
-        if(consecutive >= EVAL_SIZE - 1 || straight)
+        if(straight != -1)
         {
+            kickers.add(straight);
             return PokerHand.STRAIGHT;
         }
 
@@ -229,17 +227,10 @@ public class Hand implements Comparable<Hand>{
     @Override
     public int compareTo(Hand h)
     {
-        List<Integer> kickersOpp = h.getKickers();
-        ListIterator<Integer> iter = kickers.listIterator();
-        ListIterator<Integer> iterOpp = kickersOpp.listIterator();
+        if(strength == null)
+            strength = evalHand();
 
-        while(iter.hasNext() && iterOpp.hasNext())
-        {
-            int diff = iter.next() - iterOpp.next();
-
-            if(diff != 0)
-                return diff;
-        }
+//        if(h.strength)
         return 0;
     }
 
@@ -264,7 +255,8 @@ public class Hand implements Comparable<Hand>{
         ans7.put(PokerHand.FOUR_OF_A_KIND, 224848);
         ans7.put(PokerHand.FULL_HOUSE, 3473184);
         ans7.put(PokerHand.FLUSH, 4047644);
-        ans7.put(PokerHand.STRAIGHT, 6180020);
+        ans7.put(PokerHand.ACE_HIGH_STRAIGHT, 747980);
+        ans7.put(PokerHand.STRAIGHT, 5432040);
         ans7.put(PokerHand.THREE_OF_A_KIND, 6461620);
         ans7.put(PokerHand.TWO_PAIR, 31433400);
         ans7.put(PokerHand.PAIR, 58627800);
@@ -288,17 +280,8 @@ public class Hand implements Comparable<Hand>{
                     {
                         for(int q = 0; q < p; q++)
                         {
-//                            hand1 = new Hand(new int[]{q, p, k, j, i});
-//                            PokerHand strength = hand1.evalHand();
-//                            if(strength.equals(PokerHand.ROYAL_FLUSH))
-//                                stop = 1;
-//                            frequency.put(strength, frequency.get(strength)+1);
-
                             for(int x = 0; x < q; x++)
                             {
-//                                hand1 = new Hand(new int[]{x, q, p, k, j, i});
-//                                PokerHand strength = hand1.evalHand();
-//                                frequency.put(strength, frequency.get(strength)+1);
                                 for(int y = 0; y < x; y++)
                                 {
                                     hand1 = new Hand(new int[]{y, x, q, p, k, j, i});
