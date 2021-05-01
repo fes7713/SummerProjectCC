@@ -56,7 +56,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         this.x = x; this.y = y;
         for(int i = 0; i < cards.length; i++)
         {
-            hand.add(new Card(cards[i], x + Display.CARD_WIDTH * size, y));
+            hand.add(new Card(cards[i], x + Card.CARD_WIDTH * size, y));
             size++;
         }
     }
@@ -91,8 +91,19 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public void addCard(Card card)
     {
-        card.setCoordinate(x + Display.CARD_WIDTH * hand.size(), y);
+        card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);
         hand.add(card);
+        strength = evalHandAccuracy();
+        size++;
+    }
+
+    public void addCards(Card... cards)
+    {
+        for(Card card: cards)
+        {
+            card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);;
+            hand.add(card);
+        }
         strength = evalHandAccuracy();
         size++;
     }
@@ -627,6 +638,8 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
+        if(size == 0)
+            return "[]";
         sb.append("[").append(hand.get(0));
         for(int i = 1; i < hand.size(); i++)
         {

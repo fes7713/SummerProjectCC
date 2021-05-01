@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Card implements Comparable<Card>{
+    static final int SCALE_CONSTANT = 7;
+    static final int CARD_WIDTH = 80;
+    static final int CARD_HEIGHT = 120;
     private final int id;
     private final int number;
     private final int suit;
@@ -102,13 +105,13 @@ public class Card implements Comparable<Card>{
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append(SUITS[suit] + " ").append(NUMBERS[number]);
+        sb.append(SUITS[suit]).append(NUMBERS[number]);
 
         return sb.toString();
     }
 
     public void paint(Graphics2D g)
     {
-        g.drawImage(image, x, y, Display.CARD_WIDTH, Display.CARD_HEIGHT, null);
+        g.drawImage(image, x, y, Card.CARD_WIDTH, Card.CARD_HEIGHT, null);
     }
 }
