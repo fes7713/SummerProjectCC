@@ -1,5 +1,6 @@
 package Poker;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,22 @@ public class Game {
         BigBlind = new Money(0);
         startPlayer = players.get(0);
         display = new Display();
+
+        gameInit();
     }
+
+    public void gameInit()
+    {
+        JFrame frame = new JFrame("Simple game");
+
+        frame.add(display);
+        frame.setSize(800, 700);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        System.out.println(frame.getContentPane().getWidth());
+    }
+
+
     public Money getPot()
     {
         return pot;
@@ -40,6 +56,21 @@ public class Game {
         while(true)
         {
 
+        }
+    }
+
+    public void repaint()
+    {
+        display.repaint();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        Game game = new Game();
+
+        while(true)
+        {
+            game.repaint();
+            Thread.sleep(10);
         }
     }
 }

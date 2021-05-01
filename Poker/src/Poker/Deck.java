@@ -18,7 +18,7 @@ public class Deck {
         deck.clear();
         for(int i = 0; i < SIZE; i++)
         {
-            deck.push(new Card(i));
+            deck.push(new Card(i, 0, 0));
         }
     }
 

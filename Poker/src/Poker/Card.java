@@ -37,22 +37,26 @@ public class Card implements Comparable<Card>{
     public Card(int id, int x, int y)
     {
         this(id);
-        this.x = x;
-        this.y = y;
+        setCoordinate(x, y);
         image = Toolkit.getDefaultToolkit().getImage("assets/" + NUMBERS[number] + SUITS[suit] + ".png");
     }
 
     public Card(int number, int suit, int x, int y)
     {
         this(number, suit);
-        this.x = x;
-        this.y = y;
+        setCoordinate(x, y);
         image = Toolkit.getDefaultToolkit().getImage("assets/" + NUMBERS[number] + SUITS[suit] + ".png");
     }
 
     public void setSortOrder(SortOrder order)
     {
         sortOrder = order;
+    }
+
+    public void setCoordinate(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
     }
 
     public int getId() {

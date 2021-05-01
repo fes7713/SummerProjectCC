@@ -11,6 +11,8 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     private final List<Integer>kickers;
     private final int  EVAL_SIZE = 5;
     private final SortOrder sortOrder;
+    private int x;
+    private int y;
 
     public Hand()
     {
@@ -21,6 +23,22 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         setSortOrder(sortOrder);
     }
 
+    public Hand(List<Card> cards)
+    {
+        size = cards.size();
+        hand = cards;
+        kickers = new ArrayList<>();
+        sortOrder = SortOrder.NUMBER;
+        setSortOrder(sortOrder);
+    }
+
+    public Hand(int x, int y)
+    {
+        this();
+        this.x = x;
+        this.y = y;
+    }
+
     public Hand(int[] cards)
     {
         this();
@@ -28,6 +46,18 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         for(int i = 0; i < size; i++)
         {
             hand.add(new Card(cards[i]));
+        }
+    }
+
+    public Hand(int[] cards, int x, int y)
+    {
+        this();
+        size = 0;
+        this.x = x; this.y = y;
+        for(int i = 0; i < cards.length; i++)
+        {
+            hand.add(new Card(cards[i], x + Display.CARD_WIDTH * size, y));
+            size++;
         }
     }
 
@@ -49,6 +79,11 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         return hand.get(index);
     }
 
+    public List<Card> getCards()
+    {
+        return hand;
+    }
+
     public List<Integer> getKickers()
     {
         return kickers;
@@ -56,12 +91,11 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public void addCard(Card card)
     {
+        card.setCoordinate(x + Display.CARD_WIDTH * hand.size(), y);
         hand.add(card);
-        strength = evalHand();
+        strength = evalHandAccuracy();
         size++;
     }
-
-
 
     public void sort()
     {
@@ -91,6 +125,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public PokerHand evalHand()
     {
+        kickers.clear();
         int straight = -1;
         int straight_flush = -1;
         int consecutive;
@@ -219,6 +254,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public PokerHand evalHandAccuracy()
     {
+        kickers.clear();
         int straight = -1;
         int straight_flush = -1;
         int consecutive;
@@ -405,6 +441,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.get(0).getNumber() == 0)
                 {
+                    kickers.add(0);
                     return PokerHand.ACE_HIGH_STRAIGHT;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
@@ -448,12 +485,15 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                     kickers.add(i);
                     count++;
                 }
+//                if(count == 2)
+//                    return PokerHand.THREE_OF_A_KIND;
                 if(count == 2)
-                    return PokerHand.THREE_OF_A_KIND;
+                    break;
             }
+            return PokerHand.THREE_OF_A_KIND;
         }
 
-        // Two pair
+// Two pair
         if(freqFreq[2] > 1)
         {
             // Ace High
@@ -478,12 +518,14 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 if(numFreq[i] == 1)
                 {
                     kickers.add(i);
-                    return PokerHand.TWO_PAIR;
+//                    return PokerHand.TWO_PAIR;
+                    break;
                 }
             }
+            return PokerHand.TWO_PAIR;
         }
 
-        // One pair
+// One pair
         if(freqFreq[2] == 1)
         {
             for(int i = 0; i < Card.MAX_NUMBER; i++)
@@ -508,9 +550,12 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                     kickers.add(i);
                     count++;
                 }
+//                if(count == 3)
+//                    return PokerHand.PAIR;
                 if(count == 3)
-                    return PokerHand.PAIR;
+                    break;
             }
+            return PokerHand.PAIR;
         }
 
 // High Card
@@ -573,7 +618,10 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public void paint(Graphics2D g)
     {
-
+        for(Card card :hand)
+        {
+            card.paint(g);
+        }
     }
 
     public String toString()
