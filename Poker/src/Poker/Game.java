@@ -33,7 +33,7 @@ public class Game implements ActionListener {
         communityCards = new Hand(PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT + PokerTable.PADDING);
 
         mainPlayerIndex = 0;
-        initialPlayerIndex = 0;
+        initialPlayerIndex = 5;
         currentPlayerIndex = initialPlayerIndex;
 
         players = new ArrayList<>();
