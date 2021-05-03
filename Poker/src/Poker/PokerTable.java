@@ -10,10 +10,9 @@ import java.awt.event.*;
 import java.text.NumberFormat;
 
 public class PokerTable extends JPanel {
-    static final int STRING_LINE_SHIFT = 20;
     static final int PADDING = 20;
-    static final int WIDTH = Math.max(Player.PLAYER_WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
-    static  final int HEIGHT = PokerTable.STRING_LINE_SHIFT * 5 + Card.CARD_HEIGHT * 2 + PADDING * 2;
+    static final int WIDTH = Math.max(Player.WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
+    static  final int HEIGHT = Card.CARD_HEIGHT + PADDING * 5 + Player.HEIGHT;
     private final Game game;
 
     public PokerTable(Game g)
@@ -258,8 +257,8 @@ class GameInfoPanel extends JPanel
 {
     private Game game;
     static final int PADDING = 20;
-    static final int WIDTH = Math.max(Player.PLAYER_WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
-    static  final int HEIGHT = PokerTable.STRING_LINE_SHIFT * 5 + Card.CARD_HEIGHT * 2 + PADDING * 2;
+    static final int WIDTH = Math.max(Player.WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
+    static  final int HEIGHT = Card.CARD_HEIGHT * 2 + PADDING * 8;
 
 
     public GameInfoPanel(Game g) {

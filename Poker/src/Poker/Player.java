@@ -16,8 +16,8 @@ public class Player implements Comparable<Player>{
     private int y;
     private boolean wait;
 
-    static final int PLAYER_HEIGHT = PokerTable.STRING_LINE_SHIFT * 3 + Card.CARD_HEIGHT;
-    static final int PLAYER_WIDTH = Card.CARD_WIDTH * Game.HAND_SIZE + PokerTable.PADDING;
+    static final int HEIGHT = PokerTable.PADDING * 3 + Card.CARD_HEIGHT;
+    static final int WIDTH = Card.CARD_WIDTH * Game.HAND_SIZE + PokerTable.PADDING;
 
     public Player(Hand commCards)
     {
@@ -44,7 +44,7 @@ public class Player implements Comparable<Player>{
         this(commCards, money, control);
         this.x = x;
         this.y = y;
-        hand = new Hand(x, y + PokerTable.STRING_LINE_SHIFT * 3);
+        hand = new Hand(x, y + PokerTable.PADDING * 3);
     }
 
     public Player(Hand commCards, int money, int[] cards, int x, int y, boolean control)
@@ -52,7 +52,7 @@ public class Player implements Comparable<Player>{
         this(commCards, money, control);
         this.x = x;
         this.y = y;
-        hand = new Hand(cards, x, y + PokerTable.STRING_LINE_SHIFT * 3);
+        hand = new Hand(cards, x, y + PokerTable.PADDING * 3);
     }
 
     public PokerHand getStrength()
@@ -209,15 +209,15 @@ public class Player implements Comparable<Player>{
 
     public void clearHand()
     {
-        hand = new Hand(x, y + PokerTable.STRING_LINE_SHIFT * 2);
+        hand = new Hand(x, y + PokerTable.PADDING * 2);
     }
 
 
     public void paint(Graphics2D g)
     {
         g.drawString("Money :" + money.getAmount(), x, y + 10);
-        g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.STRING_LINE_SHIFT);
-        g.drawString("Hand :" + getStrength(communityCards) + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.STRING_LINE_SHIFT * 2);
+        g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.PADDING);
+        g.drawString("Hand :" + getStrength(communityCards) + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.PADDING * 2);
         hand.paint(g);
     }
 

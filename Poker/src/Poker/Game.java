@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Game implements ActionListener {
@@ -26,11 +27,12 @@ public class Game implements ActionListener {
     private int mainPlayerIndex;
     private int currentPlayerIndex;
     private int initialPlayerIndex;
+    private int win;
 
     public Game()
     {
         deck = new Deck();
-        communityCards = new Hand(PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT + PokerTable.PADDING);
+        communityCards = new Hand(PokerTable.PADDING, PokerTable.PADDING * 2);
 
         mainPlayerIndex = 0;
         initialPlayerIndex = 0;
@@ -41,15 +43,15 @@ public class Game implements ActionListener {
 //                Card.CARD_HEIGHT + PokerTable.PADDING, true));
         for(int i = 0; i < nPlayers; i++)
             players.add(new Player(communityCards, INITIAL_MONEY,
-                    Player.PLAYER_WIDTH * i + PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
-                    Card.CARD_HEIGHT + PokerTable.PADDING, true));
+                    Player.WIDTH * i + PokerTable.PADDING,
+                    Card.CARD_HEIGHT + PokerTable.PADDING * 4, true));
 
         pot = new Money();
         callTotal = new Money();
         smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
         stageCount = 0;
-
+        win = -1;
         gameInit();
         renamePLayers();
     }
@@ -160,7 +162,7 @@ public class Game implements ActionListener {
 
     public void paint(Graphics2D g)
     {
-        g.drawString(stages[stageCount], 20, PokerTable.STRING_LINE_SHIFT);
+        g.drawString(stages[stageCount], 20, PokerTable.PADDING);
         communityCards.paint(g);
         g.drawRoundRect(communityCards.getX() - PokerTable.PADDING / 2,
                 communityCards.getY() - PokerTable.PADDING / 2,
@@ -169,6 +171,14 @@ public class Game implements ActionListener {
                 30,
                 30);
 
+        g.setColor(new Color(73, 121, 140));
+        if(win == -1)
+            g.fillRoundRect(
+                    Player.WIDTH * currentPlayerIndex + PokerTable.PADDING - PokerTable.PADDING / 2,
+                    Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
+                    Player.HEIGHT + PokerTable.PADDING, 30, 30);
+
+        g.setColor(Color.white);
         for(Player player :players)
             player.paint(g);
 
@@ -313,6 +323,9 @@ public class Game implements ActionListener {
     public void gameEnd()
     {
         System.out.println("End");
+        System.out.println(Collections.max(players));
+        while(true)
+            repaint();
     }
 
     public void gameReset()
@@ -376,13 +389,8 @@ public class Game implements ActionListener {
     public static void main(String[] args) {
         Game game = new Game();
         game.run();
-//        while(true)
-//            game.repaint();
-//        while(true)
-//        {
-//            game.repaint();
-//            Thread.sleep(10);
-//        }
+
+
     }
 
 
