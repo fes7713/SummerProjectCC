@@ -129,11 +129,11 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         layout.setConstraints(subSliderButton, gbc);
 
         betSlider = new JSlider(game.getSmallBlind()/scaleConst,
-                game.getCurrentPlayerMoney()/scaleConst,
+                game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst,
                 game.getSmallBlind()/scaleConst);
         betSlider.setBackground(new Color(53, 101, 77));
-        betSlider.setMajorTickSpacing(game.getCurrentPlayerMoney()/scaleConst/5);
-        betSlider.setMinorTickSpacing(game.getCurrentPlayerMoney()/scaleConst/10);
+        betSlider.setMajorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/5);
+        betSlider.setMinorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/10);
         betSlider.setPaintTicks(true);
 
         gbc.gridx = 1;

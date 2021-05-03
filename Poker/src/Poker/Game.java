@@ -17,32 +17,36 @@ public class Game implements ActionListener {
 
     private int stageCount;
     private final int INITIAL_MONEY = 100000;
-    private Player mainPlayer;
-    private List<Player> bots;
+    private List<Player> players;
     private Deck deck;
     private Hand communityCards;
     private Money pot, smallBlind, callTotal;
     private PokerTable pokerTable;
-    private Queue<Action> actions;
     private Controller controller;
+    private int mainPlayerIndex;
+    private int currentPlayerIndex;
+    private int initialPlayerIndex;
 
     public Game()
     {
-        bots = new ArrayList<>();
         deck = new Deck();
         communityCards = new Hand(PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT + PokerTable.PADDING);
+
+        mainPlayerIndex = 0;
+        initialPlayerIndex = 0;
+        currentPlayerIndex = initialPlayerIndex;
+
+        players = new ArrayList<>();
+        players.add(new Player(communityCards, INITIAL_MONEY, PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
+                Card.CARD_HEIGHT + PokerTable.PADDING, true));
         for(int i = 1; i < nPlayers; i++)
-            bots.add(new Player(communityCards, INITIAL_MONEY,
+            players.add(new Player(communityCards, INITIAL_MONEY,
                     Player.PLAYER_WIDTH * i + PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
                     Card.CARD_HEIGHT + PokerTable.PADDING, false));
-//            players.add(new Player(communityCards, INITIAL_MONEY, 0, Display.STRING_LINE_SHIFT * 2 +
-//                                                Card.CARD_HEIGHT + Player.PLAYER_HEIGHT * i , true));
 
         pot = new Money();
         callTotal = new Money();
         smallBlind = new Money(300);
-        mainPlayer = new Player(communityCards, INITIAL_MONEY, PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
-                Card.CARD_HEIGHT + PokerTable.PADDING, true);
         pokerTable = new PokerTable(this);
         stageCount = 0;
         gameInit();
@@ -74,9 +78,14 @@ public class Game implements ActionListener {
         return communityCards;
     }
 
-    public int getCurrentPlayerMoney()
+    public int getMainPlayerIndex()
     {
-        return mainPlayer.getMoney();
+        return mainPlayerIndex;
+    }
+
+    public int getPlayerMoney(int index)
+    {
+        return players.get(index).getMoney();
     }
 
     public int getCallTotal()
@@ -85,9 +94,9 @@ public class Game implements ActionListener {
     }
 
     // Change it later with getBetTotal(int playerIndex)
-    public int getBetTotalPlayer()
+    public int getPlayerBetTotal(int index)
     {
-        return mainPlayer.getBetTotal();
+        return players.get(index).getBetTotal();
     }
 
 
@@ -112,8 +121,7 @@ public class Game implements ActionListener {
                 30,
                 30);
 
-        mainPlayer.paint(g);
-        for(Player player :bots)
+        for(Player player :players)
             player.paint(g);
 
     }
@@ -121,10 +129,8 @@ public class Game implements ActionListener {
     public int countFolds()
     {
         int count = 0;
-        if(mainPlayer.getStatus() == Action.FOLD)
-            count++;
 
-        for(Player player :bots)
+        for(Player player :players)
         {
             if(player.getStatus() == Action.FOLD)
             {
@@ -136,22 +142,27 @@ public class Game implements ActionListener {
 
     public void betting() {
         int callCount = 0;
-        userInput();
-        for(Player bot : bots)
+        currentPlayerIndex = initialPlayerIndex;
+
+        for(Player player : players)
         {
-
-
+            userInput(player);
             repaint();
+            currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
         }
 
     }
 
-    private void userInput() {
-        if(mainPlayer.getStatus() == Action.FOLD)
+    private void userInput(Player player) {
+        // Auto AI Calc later
+        if(!player.isControl())
             return;
+        if(player.getStatus() == Action.FOLD)
+            return;
+
         while(true)
         {
-            if(mainPlayer.isWait()) {
+            if(player.isWait()) {
                 try
                 {
                     repaint();
@@ -164,7 +175,7 @@ public class Game implements ActionListener {
             }
             else
             {
-                mainPlayer.turnOnWait();
+                player.turnOnWait();
                 return;
             }
         }
@@ -172,15 +183,14 @@ public class Game implements ActionListener {
 
     public void stageInit()
     {
+        currentPlayerIndex = 0;
         controller.setMinimum(smallBlind.getAmount());
         controller.initBetButton();
         callTotal.setAmount(0);
-        mainPlayer.clearBet();
-        mainPlayer.clearStatus();
-        for(Player bot :bots)
+        for(Player player :players)
         {
-            bot.clearBet();
-            bot.clearStatus();
+            player.clearBet();
+            player.clearStatus();
             repaint();
         }
     }
@@ -189,11 +199,14 @@ public class Game implements ActionListener {
         deck.shuffle();
 
         // Drawing cards
-        mainPlayer.pickCards(deck.pop(), deck.pop());
-        for(Player bot: bots)
+        for(int i = 0; i < HAND_SIZE; i++)
         {
-            bot.pickCards(deck.pop(), deck.pop());
+            for(Player player: players)
+            {
+                player.pickCards(deck.pop());
+            }
         }
+
 
         stageInit();
         // SB BB take (WIP)
@@ -232,7 +245,8 @@ public class Game implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        if(!players.get(currentPlayerIndex).isControl())
+            return;
         String command = e.getActionCommand();
         int pay = -2;
         switch(command)
@@ -250,23 +264,25 @@ public class Game implements ActionListener {
             }
             case "Call" -> {
                 // bet amount is within your money, then bet
-                if (callTotal.getAmount() - getBetTotalPlayer() < getCurrentPlayerMoney())
-                    pay = callTotal.getAmount() - getBetTotalPlayer();
+                if (callTotal.getAmount() - getPlayerBetTotal(currentPlayerIndex) < getPlayerMoney(currentPlayerIndex))
+                    pay = callTotal.getAmount() - getPlayerBetTotal(currentPlayerIndex);
                     // if not all in
                 else
-                    pay = getCurrentPlayerMoney();
+                    pay = getPlayerMoney(currentPlayerIndex);
             }
             case "Raise" -> pay = controller.getBetMoney();
 
-            case "ALL-In" -> pay = getCurrentPlayerMoney();
+            case "ALL-In" -> pay = getPlayerMoney(currentPlayerIndex);
         }
         System.out.println(command);
         System.out.println(pay);
 
-        mainPlayer.setCallValue(pay);
-        callTotal.setAmount(mainPlayer.proceedActionCommand(pay));
+        players.get(currentPlayerIndex).setCallValue(pay);
+        callTotal.setAmount(players.get(currentPlayerIndex).proceedActionCommand(pay));
 
         pot.add(pay);
+
+        repaint();
     }
 
     public static void main(String[] args) {

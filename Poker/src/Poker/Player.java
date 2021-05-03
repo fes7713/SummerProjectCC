@@ -10,7 +10,7 @@ public class Player {
     private Money money, bet, callValue;
     private Game game;
     private Action status;
-    boolean control;
+    private boolean control;
     private int x;
     private int y;
     private boolean wait;
@@ -76,6 +76,11 @@ public class Player {
 
     public boolean isWait() {
         return wait;
+    }
+
+    public boolean isControl()
+    {
+        return control;
     }
 
     public void turnOnWait() {
