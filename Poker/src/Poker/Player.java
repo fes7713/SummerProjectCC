@@ -10,6 +10,7 @@ public class Player {
     private Money money, bet, callValue;
     private Game game;
     private Action status;
+    private String name;
     private boolean control;
     private int x;
     private int y;
@@ -27,6 +28,7 @@ public class Player {
         status = Action.CHECK;
         wait = true;
         this.control = control;
+        name = "Player";
     }
 
     public Player(Hand commCards, int money, int x, int y, boolean control)
@@ -58,6 +60,16 @@ public class Player {
         PokerHand pk = h.evalHandAccuracy();
         kickers = h.getKickers();
         return pk;
+    }
+
+    public void rename(String name)
+    {
+        this.name = name;
+    }
+
+    public String name()
+    {
+        return name;
     }
 
     public int getMoney()
@@ -155,11 +167,16 @@ public class Player {
         }
         // Invalid input so get next input callValue > betAmount
         // Later you want to change this to
-        else if(betAmount < callValue.getAmount())
+//        else if(betAmount < callValue.getAmount())
+//        {
+//            wait = true;
+//        }
+        else if(callValue.getAmount() == 0)
         {
-            wait = true;
+            status = Action.BET;
+            bet.add(money.subtract(betAmount));
         }
-        else if(betAmount == callValue.getAmount())
+        else if(betAmount + bet.getAmount() == callValue.getAmount())
         {
             status = Action.CALL;
             bet.add(money.subtract(betAmount));
@@ -186,12 +203,8 @@ public class Player {
 
     public void paint(Graphics2D g)
     {
-//        money
-
         g.drawString("Money :" + money.getAmount(), x, y + 10);
-//        player_id
-//        strength
-        g.drawString(status + "    Bet :" + callValue.toString(), x, y + 10 + PokerTable.STRING_LINE_SHIFT);
+        g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.STRING_LINE_SHIFT);
         g.drawString("Hand :" + getStrength(communityCards) + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.STRING_LINE_SHIFT * 2);
         hand.paint(g);
     }

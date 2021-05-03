@@ -22,24 +22,6 @@ public class PokerTable extends JPanel {
 
         setBackground(new Color(53, 101, 77));
         setPreferredSize(new Dimension(WIDTH,HEIGHT));
-
-        KeyListener kl = new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_SPACE)
-                    game.next();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        };
-        addKeyListener(kl);
-        setFocusable(true);
     }
 
     public void paint(Graphics g)
@@ -55,6 +37,7 @@ public class PokerTable extends JPanel {
         game.paint(g2d);
     }
 }
+
 
 class Controller extends JPanel implements ActionListener, ChangeListener
 {
@@ -97,7 +80,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         GridBagConstraints gbc = new GridBagConstraints();
         customBetPanel.setLayout(layout);
 
-        betAmountLabel = new JLabel("Amount");
+        betAmountLabel = new JLabel("To Call");
         betAmountLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -129,7 +112,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         layout.setConstraints(subSliderButton, gbc);
 
         betSlider = new JSlider(game.getSmallBlind()/scaleConst,
-                game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst,
+                game.getCurrentPlayerMoney()/scaleConst,
                 game.getSmallBlind()/scaleConst);
         betSlider.setBackground(new Color(53, 101, 77));
         betSlider.setMajorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/5);
@@ -181,6 +164,8 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         return money.getAmount();
     }
 
+
+
     public void initBetButton()
     {
         callButton.setText("Bet");
@@ -199,13 +184,25 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         betSlider.setValue(money.getAmount()/scaleConst);
     }
 
-    public void setMinimum(int minimum)
+    public void initController()
     {
-        numberFormatter.setMinimum(minimum);
-        betSlider.setMinimum(minimum/scaleConst);
-        if(minimum > money.getAmount())
-            money.setAmount(minimum);
-        updatedMoney();
+        int min, max, value;
+        max = game.getCurrentPlayerMoney();
+        if(game.getCallTotal() > game.getCurrentPlayerMoney() || game.getSmallBlind() > game.getCurrentPlayerMoney())
+            min = game.getCurrentPlayerMoney();
+        else if(game.getCallTotal() != 0)
+            min = game.getCallTotal() - game.getCurrentPlayerBetTotal();
+        else
+            min = game.getSmallBlind();
+        value = min;
+
+        betSlider.setMinimum(min/scaleConst);
+        numberFormatter.setMinimum(min);
+        betSlider.setMaximum(max/scaleConst);
+        numberFormatter.setMaximum(max);
+        betSlider.setValue(value/scaleConst);
+        betTextEntry.setValue(value);
+        money.setAmount(value);
     }
 
     @Override
@@ -236,8 +233,54 @@ class Controller extends JPanel implements ActionListener, ChangeListener
 
         if(obj.equals(betSlider))
         {
+            if(betSlider.getValue() == betSlider.getMinimum())
+            {
+                callButton.setText("Call");
+                callButton.setActionCommand("Call");
+            }
+            else
+            {
+                callButton.setText("Raise");
+                callButton.setActionCommand("Raise");
+            }
             money.setAmount(betSlider.getValue()*scaleConst);
             updatedMoney();
+        }
+    }
+}
+
+
+class GameInfoPanel extends JPanel
+{
+    private Game game;
+    static final int PADDING = 20;
+    static final int WIDTH = Math.max(Player.PLAYER_WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
+    static  final int HEIGHT = PokerTable.STRING_LINE_SHIFT * 5 + Card.CARD_HEIGHT * 2 + PADDING * 2;
+
+
+    public GameInfoPanel(Game g) {
+        game = g;
+        setBackground(new Color(53, 101, 77));
+        setPreferredSize(new Dimension(200, HEIGHT));
+    }
+
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 14));
+        g2d.setColor(Color.WHITE);
+
+        g2d.drawString(game.getStage(), PADDING, PADDING);
+        String[] playerNames = game.playerNames();
+        Action[] playerStatuses = game.playerStatuses();
+
+        g2d.drawString("Pot : " + game.getPotAmount(), PADDING * 5, PADDING);
+        g2d.drawString("Call Value : " + game.getCallTotal(), PADDING, PADDING*3);
+        for(int i = 0; i < Game.nPlayers; i++)
+        {
+            g2d.drawString(playerNames[i] + ": " + playerStatuses[i], PADDING, PADDING*5+ PADDING * i * 2);
         }
     }
 }

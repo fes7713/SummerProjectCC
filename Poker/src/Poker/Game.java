@@ -12,8 +12,7 @@ public class Game implements ActionListener {
     static final int HAND_SIZE = 2;
     static final int COMMUNITY_CARDS_SIZE = 5;
     static final int nPlayers = 3;
-    static final String[] stages = {"`Pre-flop", "Flop", "Turn", "River"};
-
+    static final String[] stages = {"Pre-flop", "Flop", "Turn", "River"};
 
     private int stageCount;
     private final int INITIAL_MONEY = 100000;
@@ -23,6 +22,8 @@ public class Game implements ActionListener {
     private Money pot, smallBlind, callTotal;
     private PokerTable pokerTable;
     private Controller controller;
+    private GameInfoPanel infoPanel;
+    private String[] names;
     private int mainPlayerIndex;
     private int currentPlayerIndex;
     private int initialPlayerIndex;
@@ -33,23 +34,25 @@ public class Game implements ActionListener {
         communityCards = new Hand(PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT + PokerTable.PADDING);
 
         mainPlayerIndex = 0;
-        initialPlayerIndex = 5;
+        initialPlayerIndex = 0;
         currentPlayerIndex = initialPlayerIndex;
 
         players = new ArrayList<>();
-        players.add(new Player(communityCards, INITIAL_MONEY, PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
-                Card.CARD_HEIGHT + PokerTable.PADDING, true));
-        for(int i = 1; i < nPlayers; i++)
+//        players.add(new Player(communityCards, INITIAL_MONEY, PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
+//                Card.CARD_HEIGHT + PokerTable.PADDING, true));
+        for(int i = 0; i < nPlayers; i++)
             players.add(new Player(communityCards, INITIAL_MONEY,
                     Player.PLAYER_WIDTH * i + PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
-                    Card.CARD_HEIGHT + PokerTable.PADDING, false));
+                    Card.CARD_HEIGHT + PokerTable.PADDING, true));
 
         pot = new Money();
         callTotal = new Money();
         smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
         stageCount = 0;
+
         gameInit();
+        renamePLayers();
     }
 
     public void gameInit()
@@ -60,12 +63,44 @@ public class Game implements ActionListener {
         frame.setLayout(new FlowLayout());
 
         controller = new Controller(this);
-
+        infoPanel = new GameInfoPanel(this);
 
 
         frame.add(pokerTable);
+        frame.add(infoPanel);
         frame.add(controller);
+
         frame.setVisible(true);
+    }
+
+    public void renamePLayers()
+    {
+        names = new String[nPlayers];
+        int playerCount = 0, botCount = 0;
+        for(Player player:players)
+        {
+            if(player.isControl())
+                player.rename("Player" + playerCount++);
+            else
+                player.rename("Bot" + botCount++);
+        }
+
+        for(int i = 0; i < nPlayers; i++)
+            names[i] = players.get(i).name();
+    }
+
+    public String[] playerNames()
+    {
+        return names;
+    }
+
+    public Action[] playerStatuses()
+    {
+        Action[] actions = new Action[nPlayers];
+
+        for(int i = 0; i < nPlayers; i++)
+            actions[i] = players.get(i).getStatus();
+        return actions;
     }
 
     public int getSmallBlind()
@@ -88,31 +123,45 @@ public class Game implements ActionListener {
         return players.get(index).getMoney();
     }
 
+    public int getCurrentPlayerMoney()
+    {
+        return players.get(currentPlayerIndex).getMoney();
+    }
+
     public int getCallTotal()
     {
         return callTotal.getAmount();
     }
 
+    public int getPotAmount()
+    {
+        return pot.getAmount();
+    }
+
+    public String getStage()
+    {
+        return stages[stageCount];
+    }
     // Change it later with getBetTotal(int playerIndex)
     public int getPlayerBetTotal(int index)
     {
         return players.get(index).getBetTotal();
     }
 
-
-    public void next()
+    public int getCurrentPlayerBetTotal()
     {
-        stageCount = (stageCount + 1) % 4;
+        return players.get(currentPlayerIndex).getBetTotal();
     }
 
     public void repaint()
     {
         pokerTable.repaint();
+        infoPanel.repaint();
     }
 
     public void paint(Graphics2D g)
     {
-        g.drawString(stages[stageCount], 0, PokerTable.STRING_LINE_SHIFT);
+        g.drawString(stages[stageCount], 20, PokerTable.STRING_LINE_SHIFT);
         communityCards.paint(g);
         g.drawRoundRect(communityCards.getX() - PokerTable.PADDING / 2,
                 communityCards.getY() - PokerTable.PADDING / 2,
@@ -144,9 +193,18 @@ public class Game implements ActionListener {
         int callCount = 0;
         currentPlayerIndex = initialPlayerIndex;
 
-        for(Player player : players)
+        Player player;
+        while(callCount < nPlayers)
         {
+            player = players.get(currentPlayerIndex);
             userInput(player);
+            Action action = player.getStatus();
+            System.out.println("Yo");
+            System.out.println(action);
+            if(action == Action.CALL || action == Action.FOLD || action == Action.BET)
+                callCount++;
+            else
+                callCount = 1;
             repaint();
             currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
         }
@@ -159,6 +217,13 @@ public class Game implements ActionListener {
             return;
         if(player.getStatus() == Action.FOLD)
             return;
+
+        // Initialization
+        if(callTotal.getAmount() == 0)
+            controller.initBetButton();
+        else
+            controller.initCallButton();
+        controller.initController();
 
         while(true)
         {
@@ -184,7 +249,6 @@ public class Game implements ActionListener {
     public void stageInit()
     {
         currentPlayerIndex = 0;
-        controller.setMinimum(smallBlind.getAmount());
         controller.initBetButton();
         callTotal.setAmount(0);
         for(Player player :players)
@@ -218,6 +282,7 @@ public class Game implements ActionListener {
     }
 
     public void flop() {
+        stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
         betting();
@@ -225,12 +290,14 @@ public class Game implements ActionListener {
     }
 
     public void turn() {
+        stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCards(deck.pop());
         betting();
     }
 
     public void river() {
+        stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCards(deck.pop());
         betting();
@@ -264,23 +331,25 @@ public class Game implements ActionListener {
             }
             case "Call" -> {
                 // bet amount is within your money, then bet
-                if (callTotal.getAmount() - getPlayerBetTotal(currentPlayerIndex) < getPlayerMoney(currentPlayerIndex))
-                    pay = callTotal.getAmount() - getPlayerBetTotal(currentPlayerIndex);
+                if (callTotal.getAmount() - getCurrentPlayerBetTotal() < getCurrentPlayerMoney())
+                    pay = callTotal.getAmount() - getCurrentPlayerBetTotal();
                     // if not all in
                 else
-                    pay = getPlayerMoney(currentPlayerIndex);
+                    pay = getCurrentPlayerMoney();
             }
-            case "Raise" -> pay = controller.getBetMoney();
+            case "Raise" -> pay = controller.getBetMoney() - getCurrentPlayerBetTotal();
 
-            case "ALL-In" -> pay = getPlayerMoney(currentPlayerIndex);
+            case "ALL-In" -> pay = getCurrentPlayerMoney();
         }
         System.out.println(command);
         System.out.println(pay);
 
-        players.get(currentPlayerIndex).setCallValue(pay);
+        players.get(currentPlayerIndex).setCallValue(getCallTotal());
         callTotal.setAmount(players.get(currentPlayerIndex).proceedActionCommand(pay));
 
-        pot.add(pay);
+        // if not fold.
+        if(pay != -1)
+            pot.add(pay);
 
         repaint();
     }
