@@ -25,7 +25,7 @@ public class Player {
         this.money = new Money(money);
         bet = new Money();
         callValue = new Money();
-        status = Action.CHECK;
+        status = Action.WAIT;
         wait = true;
         this.control = control;
         name = "Player";
@@ -116,7 +116,7 @@ public class Player {
 
     public void clearStatus()
     {
-        status = Action.CHECK;
+        status = Action.WAIT;
     }
 
     public void addMoney(int amount)
@@ -156,7 +156,11 @@ public class Player {
         if(status == Action.FOLD || status == Action.ALL_IN)
             return 0;
         if(betAmount == -2)
+        {
             wait = true;
+            return callValue.getAmount();
+        }
+
         else if(betAmount == -1)
         {
             status = Action.FOLD;

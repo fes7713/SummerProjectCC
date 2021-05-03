@@ -1,6 +1,7 @@
 package Poker;
 
 public enum Action {
+    WAIT,
     FOLD,
     CHECK,
     CALL,

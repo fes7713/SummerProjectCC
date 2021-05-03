@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 public class Game implements ActionListener {
     static final int HAND_SIZE = 2;
@@ -190,11 +189,12 @@ public class Game implements ActionListener {
     }
 
     public void betting() {
-        int callCount = 0;
+        int callCount = countFolds();
+        int checkCount = 0;
         currentPlayerIndex = initialPlayerIndex;
 
         Player player;
-        while(callCount < nPlayers)
+        while(callCount < nPlayers && checkCount < nPlayers)
         {
             player = players.get(currentPlayerIndex);
             userInput(player);
@@ -203,11 +203,14 @@ public class Game implements ActionListener {
             System.out.println(action);
             if(action == Action.CALL || action == Action.FOLD || action == Action.BET)
                 callCount++;
+            else if(action == Action.CHECK)
+                checkCount++;
             else
                 callCount = 1;
             repaint();
             currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
         }
+        repaint();
 
     }
 
@@ -251,8 +254,12 @@ public class Game implements ActionListener {
         currentPlayerIndex = 0;
         controller.initBetButton();
         callTotal.setAmount(0);
+        Action action;
         for(Player player :players)
         {
+            action = player.getStatus();
+            if(action == Action.FOLD || action == Action.ALL_IN)
+                continue;
             player.clearBet();
             player.clearStatus();
             repaint();
@@ -303,6 +310,16 @@ public class Game implements ActionListener {
         betting();
     }
 
+    public void gameEnd()
+    {
+
+    }
+
+    public void gameReset()
+    {
+
+    }
+
     public void run() {
         preFlop();
         flop();
@@ -348,7 +365,7 @@ public class Game implements ActionListener {
         callTotal.setAmount(players.get(currentPlayerIndex).proceedActionCommand(pay));
 
         // if not fold.
-        if(pay != -1)
+        if(pay > 0)
             pot.add(pay);
 
         repaint();
@@ -357,6 +374,8 @@ public class Game implements ActionListener {
     public static void main(String[] args) {
         Game game = new Game();
         game.run();
+//        while(true)
+//            game.repaint();
 //        while(true)
 //        {
 //            game.repaint();

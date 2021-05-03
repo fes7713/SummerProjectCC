@@ -44,7 +44,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
     private Game game;
     static final int scaleConst = 100;
     private JPanel actionPanel, customBetPanel;
-    private JButton foldButton, checkButton, callButton, raiseButton, btnAllIn, addSliderButton, subSliderButton;
+    private JButton foldButton, checkButton, callButton, btnAllIn, addSliderButton, subSliderButton;
     private JLabel betAmountLabel;
     private JFormattedTextField betTextEntry;
     private JSlider betSlider;
@@ -60,17 +60,15 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         setLayout(new FlowLayout());
 
 
-        actionPanel = new JPanel(new GridLayout(1, 5));
+        actionPanel = new JPanel(new GridLayout(1, 4));
         foldButton = new JButton("Fold");
         checkButton = new JButton("Check");
         callButton = new JButton("Call");
-        raiseButton = new JButton("Raise");
         btnAllIn = new JButton("All-In");
         // Add buttons
         actionPanel.add(foldButton);
         actionPanel.add(checkButton);
         actionPanel.add(callButton);
-        actionPanel.add(raiseButton);
         actionPanel.add(btnAllIn);
 
         customBetPanel = new JPanel();
@@ -145,13 +143,11 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         foldButton.setActionCommand("Fold");
         checkButton.setActionCommand("Check");
         callButton.setActionCommand("Call");
-        raiseButton.setActionCommand("Raise");
         btnAllIn.setActionCommand("All-In");
 
         foldButton.addActionListener(game);
         checkButton.addActionListener(game);
         callButton.addActionListener(game);
-        raiseButton.addActionListener(game);
         btnAllIn.addActionListener(game);
         addSliderButton.addActionListener(this);
         subSliderButton.addActionListener(this);
