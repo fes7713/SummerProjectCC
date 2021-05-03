@@ -231,8 +231,16 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         {
             if(betSlider.getValue() == betSlider.getMinimum())
             {
-                callButton.setText("Call");
-                callButton.setActionCommand("Call");
+                if(game.getCallTotal() == 0)
+                {
+                    callButton.setText("Bet");
+                    callButton.setActionCommand("Bet");
+                }
+                else
+                {
+                    callButton.setText("Call");
+                    callButton.setActionCommand("Call");
+                }
             }
             else
             {

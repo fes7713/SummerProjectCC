@@ -312,7 +312,7 @@ public class Game implements ActionListener {
 
     public void gameEnd()
     {
-
+        System.out.println("End");
     }
 
     public void gameReset()
@@ -325,6 +325,8 @@ public class Game implements ActionListener {
         flop();
         turn();
         river();
+        gameEnd();
+        gameReset();
     }
 
     @Override
@@ -344,7 +346,7 @@ public class Game implements ActionListener {
                 if(betInputted < smallBlind.getAmount())
                     pay = -2;
                 else
-                    pay = controller.getBetMoney();
+                    pay = betInputted;
             }
             case "Call" -> {
                 // bet amount is within your money, then bet
