@@ -8,10 +8,10 @@ public class Player implements Comparable<Player>{
     private Hand hand, communityCards;
     private List<Integer> kickers;
     private Money money, bet, callValue;
-    private Game game;
     private Action status;
     private String name;
-    private boolean control;
+    private PokerHand strength;
+    private final boolean control;
     private int x;
     private int y;
     private boolean wait;
@@ -25,6 +25,7 @@ public class Player implements Comparable<Player>{
         hand = new Hand();
         kickers = new ArrayList<>();
         name = "Player";
+        control = true;
     }
 
     public Player(Hand commCards, int money, boolean control)
@@ -55,25 +56,31 @@ public class Player implements Comparable<Player>{
         hand = new Hand(cards, x, y + PokerTable.PADDING * 3);
     }
 
-    public PokerHand getStrength()
+    public void evalHandAccuracy()
     {
-        return hand.evalHandAccuracy();
-    }
-
-    public PokerHand getStrength(Hand commHand)
-    {
-        ArrayList<Card> cards = new ArrayList<>(commHand.getCards());
+        ArrayList<Card> cards = new ArrayList<>(communityCards.getCards());
         cards.addAll(hand.getCards());
         Hand h = new Hand(cards);
-        PokerHand pk = h.evalHandAccuracy();
+        strength = h.evalHandAccuracy();
         kickers = h.getKickers();
-        return pk;
     }
 
     public void rename(String name)
     {
         this.name = name;
     }
+
+    public PokerHand getStrength()
+    {
+        return strength;
+    }
+
+    public List<Integer> getKickers()
+    {
+        return hand.getKickers();
+    }
+
+
 
     public String name()
     {
@@ -105,16 +112,6 @@ public class Player implements Comparable<Player>{
 
     public void turnOnWait() {
         wait = true;
-    }
-
-    public void addBet(int amount)
-    {
-        bet.add(amount);
-    }
-
-    public void subtractBet(int amount)
-    {
-        bet.subtract(amount);
     }
 
     public void clearBet()
@@ -168,7 +165,6 @@ public class Player implements Comparable<Player>{
             wait = true;
             return callValue.getAmount();
         }
-
         else if(betAmount == -1)
         {
             status = Action.FOLD;
@@ -177,12 +173,6 @@ public class Player implements Comparable<Player>{
         {
             status = Action.CHECK;
         }
-        // Invalid input so get next input callValue > betAmount
-        // Later you want to change this to
-//        else if(betAmount < callValue.getAmount())
-//        {
-//            wait = true;
-//        }
         else if(callValue.getAmount() == 0)
         {
             status = Action.BET;
@@ -206,29 +196,61 @@ public class Player implements Comparable<Player>{
         return bet.getAmount();
     }
 
-
     public void clearHand()
     {
         hand = new Hand(x, y + PokerTable.PADDING * 2);
     }
 
+    // Return hand cards
+    public List<Card> reset()
+    {
+        kickers =  new ArrayList<>();
+        bet.clear();
+        callValue.clear();
+        status = Action.WAIT;
+        strength = null;
+        wait = true;
+        return hand.reset();
+
+    }
 
     public void paint(Graphics2D g)
     {
+        evalHandAccuracy();
         g.drawString("Money :" + money.getAmount(), x, y + 10);
         g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.PADDING);
-        g.drawString("Hand :" + getStrength(communityCards) + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.PADDING * 2);
+        g.drawString("Hand :" + getStrength() + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.PADDING * 2);
         hand.paint(g);
     }
 
     @Override
-    public int compareTo(Player o) {
-        return hand.compareTo(o.hand);
+    public int compareTo(Player h) {
+        if(!strength.equals(h.strength))
+            return h.strength.getId() - strength.getId();
+
+        for(int i = 0; i < kickers.size() && i < h.getKickers().size(); i++)
+        {
+            int n1 = kickers.get(i);
+            int n2 = h.getKickers().get(i);
+
+            if(n1 != n2)
+            {
+                if(i <= 1)
+                {
+                    if(n1 == 0)
+                        return 1;
+                    else if(n2 == 0)
+                        return -1;
+                }
+                return n1 - n2;
+            }
+        }
+        return 0;
     }
 
     public String toString()
     {
-
+        evalHandAccuracy();
         return name + ": " + getStrength().name() + hand.toString();
     }
 }

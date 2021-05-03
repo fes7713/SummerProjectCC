@@ -1,6 +1,7 @@
 package Poker;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 
 public class Deck {
@@ -22,6 +23,11 @@ public class Deck {
         }
     }
 
+    public int size()
+    {
+        return deck.size();
+    }
+
     public void shuffle()
     {
         Collections.shuffle(deck);
@@ -30,5 +36,23 @@ public class Deck {
     public Card pop()
     {
         return deck.pop();
+    }
+
+    public void add(Card card)
+    {
+        deck.add(card);
+    }
+
+    public void addAll(List<Card> cards)
+    {
+        deck.addAll(cards);
+    }
+
+    public void addAll(List<Card>... cardsList)
+    {
+        for(List<Card> cards:cardsList)
+        {
+            deck.addAll(cards);
+        }
     }
 }

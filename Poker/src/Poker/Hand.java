@@ -5,12 +5,12 @@ import java.util.*;
 import java.util.List;
 
 public class Hand implements Comparable<Hand>, Iterable<Card>{
-    private final List<Card> hand;
+    private List<Card> hand;
     private int size;
     private PokerHand strength;
-    private final List<Integer>kickers;
+    private List<Integer>kickers;
     private final int  EVAL_SIZE = 5;
-    private final SortOrder sortOrder;
+    private SortOrder sortOrder;
     private int x;
     private int y;
 
@@ -59,6 +59,17 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
             hand.add(new Card(cards[i], x + Card.CARD_WIDTH * size, y));
             size++;
         }
+    }
+
+    public List<Card> reset()
+    {
+        List<Card> temp = hand;
+        this.size = 0;
+        hand = new ArrayList<>();
+        kickers = new ArrayList<>();
+        sortOrder = SortOrder.NUMBER;
+        setSortOrder(sortOrder);
+        return temp;
     }
 
     public PokerHand getStrength() {
@@ -731,22 +742,4 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         }
 
     }
-
-
-
-    public static void main(String[] args)
-    {
-
-        Hand hand1 = new Hand(new int[]{0, 5, 3, 2, 1, 13, 8});
-        Hand hand2 = new Hand(new int[]{0, 5, 3, 2, 1, 13, 9});
-        System.out.println(hand1 + " :" +  hand1.evalHandAccuracy() + " " + hand1.getKickers());
-        System.out.println(hand2 + " :" +  hand2.evalHandAccuracy() + " " + hand2.getKickers());
-        if(hand1.compareTo(hand2) > 0)
-            System.out.println("Player 1 win");
-        else
-            System.out.println("Player 2 win");
-        System.out.println(hand1.getKickers());
-//        hand.testHands();
-    }
-
 }

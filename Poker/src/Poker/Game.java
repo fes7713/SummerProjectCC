@@ -27,7 +27,8 @@ public class Game implements ActionListener {
     private int mainPlayerIndex;
     private int currentPlayerIndex;
     private int initialPlayerIndex;
-    private int win;
+    private Integer[] win;
+    private boolean wait;
 
     public Game()
     {
@@ -51,7 +52,8 @@ public class Game implements ActionListener {
         smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
         stageCount = 0;
-        win = -1;
+        win = null;
+        wait = false;
         gameInit();
         renamePLayers();
     }
@@ -117,11 +119,6 @@ public class Game implements ActionListener {
         return smallBlind.getAmount();
     }
 
-    public Hand getCommunityCards()
-    {
-        return communityCards;
-    }
-
     public int getMainPlayerIndex()
     {
         return mainPlayerIndex;
@@ -179,15 +176,26 @@ public class Game implements ActionListener {
                 30,
                 30);
 
-        if(win == -1)
-            g.setColor(PokerTable.PRIMARY_COLOR_VARIANT);
-        else
-            g.setColor(PokerTable.SECONDARY_COLOR);
 
-        g.fillRoundRect(
-                Player.WIDTH * currentPlayerIndex + PokerTable.PADDING - PokerTable.PADDING / 2,
-                Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
-                Player.HEIGHT + PokerTable.PADDING, 30, 30);
+        // Player Coloring
+        if(win == null)
+        {
+            g.setColor(PokerTable.PRIMARY_COLOR_VARIANT);
+            g.fillRoundRect(
+                    Player.WIDTH * currentPlayerIndex + PokerTable.PADDING - PokerTable.PADDING / 2,
+                    Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
+                    Player.HEIGHT + PokerTable.PADDING, 30, 30);
+        }
+        else
+        {
+            g.setColor(PokerTable.SECONDARY_COLOR);
+            for(int i = 0; i < win.length; i++)
+            g.fillRoundRect(
+                    Player.WIDTH * win[i] + PokerTable.PADDING - PokerTable.PADDING / 2,
+                    Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
+                    Player.HEIGHT + PokerTable.PADDING, 30, 30);
+        }
+
 
         g.setColor(Color.white);
         for(Player player :players)
@@ -331,34 +339,71 @@ public class Game implements ActionListener {
         betting();
     }
 
-    public void gameEnd()
-    {
+    public void gameEnd() throws InterruptedException {
         System.out.println("End");
-        Player wom = Collections.max(players);
-        for(int i = 0; i < nPlayers; i++)
-            if(wom.equals(players.get(i)))
-                win = i;
-        currentPlayerIndex = win;
-        while(true)
-            repaint();
+
+        // ** Check who is winner
+        Player wonPlayer = players.get(0);
+        ArrayList<Integer> winPlayerList = new ArrayList<>(nPlayers);
+        winPlayerList.add(0);
+        for(int i = 1, compNum; i < nPlayers; i++)
+        {
+            // get compare number and keep it
+            compNum = wonPlayer.compareTo(players.get(i));
+
+            // Now evaluate compNum and replace winPlayer if necessary
+            if(compNum < 0)
+            {
+                winPlayerList.clear();
+                winPlayerList.add(i);
+                wonPlayer = players.get(i);
+            }
+            else if(compNum == 0)
+                winPlayerList.add(i);
+        }
+
+        win = winPlayerList.toArray(new Integer[winPlayerList.size()]);
+
+        wait = true;
+        while(wait)
+            Thread.sleep(10);
     }
 
     public void gameReset()
     {
+        // After game end.
+        // Take cards from players and put them in deck.
+        for(Player player : players)
+            deck.addAll(player.reset());
+        deck.addAll(communityCards.reset());
+        System.out.println(deck.size());
 
+//        smallBlind,
+        stageCount = 0;
+        callTotal.clear();
+        initialPlayerIndex = (initialPlayerIndex + 1) % nPlayers;
+        currentPlayerIndex = initialPlayerIndex;
+        win = null;
     }
 
-    public void run() {
-        preFlop();
-        flop();
-        turn();
-        river();
-        gameEnd();
-        gameReset();
+
+
+    public void run() throws InterruptedException {
+        while(true)
+        {
+            preFlop();
+            flop();
+            turn();
+            river();
+            gameEnd();
+            gameReset();
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(wait)
+            wait = false;
         if(!players.get(currentPlayerIndex).isControl())
             return;
         String command = e.getActionCommand();
@@ -401,7 +446,7 @@ public class Game implements ActionListener {
         repaint();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
         game.run();
 
