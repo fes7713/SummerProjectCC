@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements Comparable<Player>{
     private Hand hand, communityCards;
     private List<Integer> kickers;
     private Money money, bet, callValue;
@@ -18,6 +18,14 @@ public class Player {
 
     static final int PLAYER_HEIGHT = PokerTable.STRING_LINE_SHIFT * 3 + Card.CARD_HEIGHT;
     static final int PLAYER_WIDTH = Card.CARD_WIDTH * Game.HAND_SIZE + PokerTable.PADDING;
+
+    public Player(Hand commCards)
+    {
+        communityCards = commCards;
+        hand = new Hand();
+        kickers = new ArrayList<>();
+        name = "Player";
+    }
 
     public Player(Hand commCards, int money, boolean control)
     {
@@ -211,5 +219,16 @@ public class Player {
         g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.STRING_LINE_SHIFT);
         g.drawString("Hand :" + getStrength(communityCards) + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.STRING_LINE_SHIFT * 2);
         hand.paint(g);
+    }
+
+    @Override
+    public int compareTo(Player o) {
+        return hand.compareTo(o.hand);
+    }
+
+    public String toString()
+    {
+
+        return name + ": " + getStrength().name() + hand.toString();
     }
 }
