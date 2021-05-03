@@ -13,13 +13,21 @@ public class PokerTable extends JPanel {
     static final int PADDING = 20;
     static final int WIDTH = Math.max(Player.WIDTH * Game.nPlayers, Game.COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH) + PADDING * 2;
     static  final int HEIGHT = Card.CARD_HEIGHT + PADDING * 5 + Player.HEIGHT;
+//    static final Color PRIMARY_COLOR = new Color(109, 166, 68);
+//    static final Color PRIMARY_COLOR_VARIANT = new Color(127, 191, 80);
+//    static final Color SECONDARY_COLOR = new Color(242, 183, 5);
+//    static final Color SECONDARY_COLOR_VARIANT = new Color(217, 164, 4);
+    static final Color PRIMARY_COLOR = new Color(0, 140, 112);
+    static final Color PRIMARY_COLOR_VARIANT = new Color(20, 217, 177);
+    static final Color SECONDARY_COLOR = new Color(255, 85, 23);
+    static final Color SECONDARY_COLOR_VARIANT = new Color( 191, 52, 2);
     private final Game game;
 
     public PokerTable(Game g)
     {
         game = g;
 
-        setBackground(new Color(53, 101, 77));
+        setBackground(PRIMARY_COLOR);
         setPreferredSize(new Dimension(WIDTH,HEIGHT));
     }
 
@@ -54,7 +62,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
     public Controller(Game g) {
         game = g;
         money = new Money();
-        setBackground(new Color(53, 101, 77));
+        setBackground(PokerTable.PRIMARY_COLOR);
         setPreferredSize(new Dimension(400,200));
         setLayout(new FlowLayout());
 
@@ -72,7 +80,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
 
         customBetPanel = new JPanel();
         customBetPanel.setPreferredSize(new Dimension(400, 100));
-        customBetPanel.setBackground(new Color(53, 101, 77));
+        customBetPanel.setBackground(PokerTable.PRIMARY_COLOR);
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints gbc = new GridBagConstraints();
         customBetPanel.setLayout(layout);
@@ -111,7 +119,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         betSlider = new JSlider(game.getSmallBlind()/scaleConst,
                 game.getCurrentPlayerMoney()/scaleConst,
                 game.getSmallBlind()/scaleConst);
-        betSlider.setBackground(new Color(53, 101, 77));
+        betSlider.setBackground(PokerTable.PRIMARY_COLOR);
         betSlider.setMajorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/5);
         betSlider.setMinorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/10);
         betSlider.setPaintTicks(true);
@@ -263,7 +271,7 @@ class GameInfoPanel extends JPanel
 
     public GameInfoPanel(Game g) {
         game = g;
-        setBackground(new Color(53, 101, 77));
+        setBackground(PokerTable.PRIMARY_COLOR);
         setPreferredSize(new Dimension(200, HEIGHT));
     }
 
