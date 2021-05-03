@@ -60,17 +60,25 @@ public class Game implements ActionListener {
     {
         JFrame frame = new JFrame("Simple game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(850, 1000);
-        frame.setLayout(new FlowLayout());
+        frame.setSize(780, 800);
+        frame.setLayout(new BorderLayout());
 
+//        JPanel p = new JPanel();
+//        p.setBackground(PokerTable.PRIMARY_COLOR);
         controller = new Controller(this);
         infoPanel = new GameInfoPanel(this);
+//        p.add(pokerTable);
+//        p.add(infoPanel);
+//        p.add(controller);
 
 
-        frame.add(pokerTable);
-        frame.add(infoPanel);
-        frame.add(controller);
 
+
+        frame.add(pokerTable, BorderLayout.WEST);
+        frame.add(infoPanel, BorderLayout.EAST);
+        frame.add(controller, BorderLayout.SOUTH);
+//        frame.add(p);
+//        frame.setBackground(PokerTable.PRIMARY_COLOR);
         frame.setVisible(true);
     }
 
@@ -171,12 +179,15 @@ public class Game implements ActionListener {
                 30,
                 30);
 
-        g.setColor(new Color(73, 121, 140));
         if(win == -1)
-            g.fillRoundRect(
-                    Player.WIDTH * currentPlayerIndex + PokerTable.PADDING - PokerTable.PADDING / 2,
-                    Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
-                    Player.HEIGHT + PokerTable.PADDING, 30, 30);
+            g.setColor(PokerTable.PRIMARY_COLOR_VARIANT);
+        else
+            g.setColor(PokerTable.SECONDARY_COLOR);
+
+        g.fillRoundRect(
+                Player.WIDTH * currentPlayerIndex + PokerTable.PADDING - PokerTable.PADDING / 2,
+                Card.CARD_HEIGHT + PokerTable.PADDING * 4 - PokerTable.PADDING / 2, Player.WIDTH,
+                Player.HEIGHT + PokerTable.PADDING, 30, 30);
 
         g.setColor(Color.white);
         for(Player player :players)
@@ -323,7 +334,11 @@ public class Game implements ActionListener {
     public void gameEnd()
     {
         System.out.println("End");
-        System.out.println(Collections.max(players));
+        Player wom = Collections.max(players);
+        for(int i = 0; i < nPlayers; i++)
+            if(wom.equals(players.get(i)))
+                win = i;
+        currentPlayerIndex = win;
         while(true)
             repaint();
     }
