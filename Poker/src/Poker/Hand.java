@@ -79,6 +79,14 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         return hand.get(index);
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public List<Card> getCards()
     {
         return hand;

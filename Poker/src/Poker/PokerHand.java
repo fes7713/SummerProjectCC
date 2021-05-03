@@ -15,7 +15,6 @@ public enum PokerHand {
 
     private int id;
 
-    // コンストラクタの定義
     private PokerHand(int id) {
         this.id = id;
     }

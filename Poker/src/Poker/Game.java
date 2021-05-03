@@ -2,10 +2,13 @@ package Poker;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
-public class Game {
+public class Game implements ActionListener {
     static final int HAND_SIZE = 2;
     static final int COMMUNITY_CARDS_SIZE = 5;
     static final int nPlayers = 3;
@@ -14,30 +17,33 @@ public class Game {
 
     private int stageCount;
     private final int INITIAL_MONEY = 100000;
-    private List<Player> players;
+    private Player mainPlayer;
+    private List<Player> bots;
     private Deck deck;
     private Hand communityCards;
-    private Money pot;
-    private Money SmallBlind;
-    private Player startPlayer;
-    private Display display;
+    private Money pot, smallBlind, callTotal;
+    private PokerTable pokerTable;
+    private Queue<Action> actions;
+    private Controller controller;
 
     public Game()
     {
-        players = new ArrayList<>();
+        bots = new ArrayList<>();
         deck = new Deck();
-        communityCards = new Hand(0, Display.STRING_LINE_SHIFT);
-        for(int i = 0; i < nPlayers; i++)
-          players.add(new Player(communityCards, INITIAL_MONEY,
-                  Player.PLAYER_WIDTH * i, Display.STRING_LINE_SHIFT * 2 +
-                    Card.CARD_HEIGHT , true));
+        communityCards = new Hand(PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT + PokerTable.PADDING);
+        for(int i = 1; i < nPlayers; i++)
+            bots.add(new Player(communityCards, INITIAL_MONEY,
+                    Player.PLAYER_WIDTH * i + PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
+                    Card.CARD_HEIGHT + PokerTable.PADDING, false));
 //            players.add(new Player(communityCards, INITIAL_MONEY, 0, Display.STRING_LINE_SHIFT * 2 +
 //                                                Card.CARD_HEIGHT + Player.PLAYER_HEIGHT * i , true));
 
-        pot = new Money(0);
-        SmallBlind = new Money(300);
-        startPlayer = players.get(0);
-        display = new Display(this);
+        pot = new Money();
+        callTotal = new Money();
+        smallBlind = new Money(300);
+        mainPlayer = new Player(communityCards, INITIAL_MONEY, PokerTable.PADDING, PokerTable.STRING_LINE_SHIFT * 2 +
+                Card.CARD_HEIGHT + PokerTable.PADDING, true);
+        pokerTable = new PokerTable(this);
         stageCount = 0;
         gameInit();
     }
@@ -45,32 +51,45 @@ public class Game {
     public void gameInit()
     {
         JFrame frame = new JFrame("Simple game");
-
-        frame.add(display);
-        frame.setSize(800, 1000);
-        frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        System.out.println(frame.getContentPane().getWidth());
+        frame.setSize(850, 1000);
+        frame.setLayout(new FlowLayout());
+
+        controller = new Controller(this);
+
+
+
+        frame.add(pokerTable);
+        frame.add(controller);
+        frame.setVisible(true);
     }
 
-
-    public Money getPot()
+    public int getSmallBlind()
     {
-        return pot;
+        return smallBlind.getAmount();
     }
 
     public Hand getCommunityCards()
     {
         return communityCards;
     }
-    public void betting()
+
+    public int getCurrentPlayerMoney()
     {
-        int count = 0;
-//        while(true)
-//        {
-//
-//        }
+        return mainPlayer.getMoney();
     }
+
+    public int getCallTotal()
+    {
+        return callTotal.getAmount();
+    }
+
+    // Change it later with getBetTotal(int playerIndex)
+    public int getBetTotalPlayer()
+    {
+        return mainPlayer.getBetTotal();
+    }
+
 
     public void next()
     {
@@ -79,86 +98,178 @@ public class Game {
 
     public void repaint()
     {
-        display.repaint();
+        pokerTable.repaint();
     }
 
     public void paint(Graphics2D g)
     {
-        g.drawString(stages[stageCount], 0, Display.STRING_LINE_SHIFT);
+        g.drawString(stages[stageCount], 0, PokerTable.STRING_LINE_SHIFT);
         communityCards.paint(g);
-        for(Player player :players)
+        g.drawRoundRect(communityCards.getX() - PokerTable.PADDING / 2,
+                communityCards.getY() - PokerTable.PADDING / 2,
+                COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH + PokerTable.PADDING,
+                Card.CARD_HEIGHT + PokerTable.PADDING,
+                30,
+                30);
+
+        mainPlayer.paint(g);
+        for(Player player :bots)
             player.paint(g);
 
     }
 
-    public void preFlop() throws InterruptedException {
-        deck.shuffle();
-        for(Player player:players)
+    public int countFolds()
+    {
+        int count = 0;
+        if(mainPlayer.getStatus() == Action.FOLD)
+            count++;
+
+        for(Player player :bots)
         {
-            for(int i = 0; i < HAND_SIZE; i++)
+            if(player.getStatus() == Action.FOLD)
             {
-                player.pickCard(deck.pop());
+                count++;
             }
         }
-        betting();
+        return count;
+    }
 
+    public void betting() {
+        int callCount = 0;
+        userInput();
+        for(Player bot : bots)
+        {
+
+
+            repaint();
+        }
+
+    }
+
+    private void userInput() {
+        if(mainPlayer.getStatus() == Action.FOLD)
+            return;
         while(true)
         {
-            if(stageCount != 0)
+            if(mainPlayer.isWait()) {
+                try
+                {
+                    repaint();
+                    Thread.sleep(10);
+                }
+                catch(InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                mainPlayer.turnOnWait();
                 return;
-            this.repaint();
-            Thread.sleep(10);
+            }
         }
     }
 
-    public void flop() throws InterruptedException {
+    public void stageInit()
+    {
+        controller.setMinimum(smallBlind.getAmount());
+        controller.initBetButton();
+        callTotal.setAmount(0);
+        mainPlayer.clearBet();
+        mainPlayer.clearStatus();
+        for(Player bot :bots)
+        {
+            bot.clearBet();
+            bot.clearStatus();
+            repaint();
+        }
+    }
+
+    public void preFlop() {
+        deck.shuffle();
+
+        // Drawing cards
+        mainPlayer.pickCards(deck.pop(), deck.pop());
+        for(Player bot: bots)
+        {
+            bot.pickCards(deck.pop(), deck.pop());
+        }
+
+        stageInit();
+        // SB BB take (WIP)
+        callTotal.add(smallBlind.getAmount() * 2);
+        // Set Call button not bet because callTotal is not 0
+        controller.initCallButton();
+
+        betting();
+    }
+
+    public void flop() {
+        stageInit();
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
         betting();
 
-        while(true)
-        {
-            System.out.println(stageCount);
-            if(stageCount != 1)
-                return;
-            this.repaint();
-            Thread.sleep(10);
-        }
     }
 
-    public void turn() throws InterruptedException {
+    public void turn() {
+        stageInit();
         communityCards.addCards(deck.pop());
         betting();
-
-        while(true)
-        {
-            if(stageCount != 2)
-                return;
-            this.repaint();
-            Thread.sleep(10);
-        }
     }
 
-    public void river() throws InterruptedException {
+    public void river() {
+        stageInit();
         communityCards.addCards(deck.pop());
-
-        while(true)
-        {
-            if(stageCount != 3)
-                return;
-            this.repaint();
-            Thread.sleep(10);
-        }
+        betting();
     }
 
-    public void run() throws InterruptedException {
+    public void run() {
         preFlop();
         flop();
         turn();
         river();
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
 
-    public static void main(String[] args) throws InterruptedException {
+        String command = e.getActionCommand();
+        int pay = -2;
+        switch(command)
+        {
+            case "Fold" -> pay = -1;
+
+            case "Check" -> pay = getCallTotal() == 0 ? 0:-2;
+
+            case "Bet" -> {
+                int betInputted = controller.getBetMoney();
+                if(betInputted < smallBlind.getAmount())
+                    pay = -2;
+                else
+                    pay = controller.getBetMoney();
+            }
+            case "Call" -> {
+                // bet amount is within your money, then bet
+                if (callTotal.getAmount() - getBetTotalPlayer() < getCurrentPlayerMoney())
+                    pay = callTotal.getAmount() - getBetTotalPlayer();
+                    // if not all in
+                else
+                    pay = getCurrentPlayerMoney();
+            }
+            case "Raise" -> pay = controller.getBetMoney();
+
+            case "ALL-In" -> pay = getCurrentPlayerMoney();
+        }
+        System.out.println(command);
+        System.out.println(pay);
+
+        mainPlayer.setCallValue(pay);
+        callTotal.setAmount(mainPlayer.proceedActionCommand(pay));
+
+        pot.add(pay);
+    }
+
+    public static void main(String[] args) {
         Game game = new Game();
         game.run();
 //        while(true)
@@ -167,4 +278,7 @@ public class Game {
 //            Thread.sleep(10);
 //        }
     }
+
+
 }
+
