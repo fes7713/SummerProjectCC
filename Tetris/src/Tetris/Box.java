@@ -28,10 +28,18 @@ public class Box {
     public Box(Game game, int row, int column)
     {
         this.game = game;
-        width = game.getBOX_SIZE();
-        height = game.getBOX_SIZE();
+        width = Game.BOX_SIZE;
+        height = Game.BOX_SIZE;
         setCoordinate(row, column);
         active = true;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public int getRow()
@@ -46,8 +54,8 @@ public class Box {
 
     public void setCoordinate(int row, int col)
     {
-        x = col * game.getBOX_SIZE() + game.getSTART_POS();
-        y = row * game.getBOX_SIZE() + game.getSTART_POS();
+        x = col * Game.BOX_SIZE + Game.START_POS;
+        y = row * Game.BOX_SIZE + Game.START_POS;
     }
     public void setActive(boolean b)
     {

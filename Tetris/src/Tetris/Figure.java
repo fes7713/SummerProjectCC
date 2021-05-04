@@ -2,6 +2,7 @@ package Tetris;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 public class Figure {
     private int startLeft;
@@ -13,7 +14,6 @@ public class Figure {
 
     // When it is true, you can move figure by pressing arrow keys.
     private boolean movable;
-
 
     // Constructors with different signatures.
     public Figure(Game game, boolean movable)
@@ -60,6 +60,36 @@ public class Figure {
         setMap(mapConfig);
     }
 
+    public Figure(Game game, Box[][] newBoxMap, int startLeft, int startTop, boolean movable)
+    {
+        this(game, startLeft, startTop);
+        this.movable = movable;
+
+        row = newBoxMap.length;
+        column = newBoxMap[0].length;
+        boxMap = new Box[row][column];
+
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < column; j++)
+            {
+                boxMap[i][j] = new Box(game, i + startTop, j + startLeft);
+            }
+        }
+
+        for(int i = 0; i < row; i++)
+        {
+            for(int j = 0; j < column; j++)
+            {
+                boxMap[i][j].setActive(newBoxMap[i][j].getActive());
+            }
+        }
+    }
+
+    public boolean isActiveCell(int row, int col)
+    {
+        return boxMap[row][col].getActive();
+    }
 
     // Done
     // Set up box map, When true, show box. When false, hide box.
@@ -104,7 +134,7 @@ public class Figure {
 
     // https://strategywiki.org/wiki/Tetris/Rotation_systems
     // Use Super rotation system
-    // WIP // Somebody make this
+    // Done
     public void rotate()
     {
         Box[][] newBoxMap = new Box[boxMap[0].length][boxMap.length];
@@ -112,50 +142,51 @@ public class Figure {
         {
             for(int j = 0; j < boxMap[0].length; j++)
             {
-                newBoxMap[j][boxMap.length - i - 1] = boxMap[i][j];
+                newBoxMap[j][boxMap.length - i - 1] = new Box(game, boxMap[i][j].getX(), boxMap[i][j].getY(), Game.BOX_SIZE, Game.BOX_SIZE);
+                newBoxMap[j][boxMap.length - i - 1].setActive(boxMap[i][j].getActive());
             }
         }
-        boxMap = newBoxMap;
-        row = boxMap.length;
-        column = boxMap[0].length;
+
+        Figure test = new Figure(game, newBoxMap, startLeft, startTop, movable);
+        if(!test.collision(this))
+        {
+            boxMap = newBoxMap;
+            row = boxMap.length;
+            column = boxMap[0].length;
+        }
     }
 
-    // WIP
-    // Somebody make this
-    // Use this to check if figures are overlapping at the destination before actually moving the figure in keyTyped func.
-    public boolean intersect(int addX, int addY)
+    // true == yap, intersection
+    // false == nope, no intersections
+    public boolean intersects(Figure fig)
     {
-        Rectangle rect = new Rectangle(startLeft + addX, startTop + addY, column, row);
-        for(Figure fig : game.getFigures())
+        for(int i = 0; i < row; i++)
         {
-            Rectangle rect1 = new Rectangle(fig.getLeft(), fig.getTop(), fig.getColumn(), fig.getRow());
-            if(rect.intersects(rect1))
+            for(int j = 0; j < column; j++)
             {
-                return true;
+                int y = i + startTop - fig.startTop;
+                int x = j + startLeft- fig.startLeft;
+
+                if(y < 0 || y >= fig.row || x < 0 || x >= fig.column)
+                    continue;
+                if(isActiveCell(i, j) && fig.isActiveCell(y, x))
+                    return true;
             }
         }
         return false;
     }
 
-
-    // WIP
-    // Combine two figure and create one bif figure.
-    // It is used to make ground block. Like when figure hits ground, ground gets bigger and become one block.
-    // It is better way of managing figure because we dont need to keep many figures.
-    public void combine(Figure fig)
+    // Done
+    public boolean collision(Figure exclude)
     {
-        int left, top;
-        if(startLeft < fig.getLeft())
-            left = startLeft;
-        else
-            left = fig.getLeft();
+        List<Figure> figures = game.getFigures();
 
-        if(startTop < fig.getTop())
-            top = startTop;
-        else
-            top = fig.getTop();
-
-//        Box[][]newBoxMap = new Box[][];
+        for(Figure figure : figures)
+        {
+            if(intersects(figure) && !exclude.equals(figure))
+                return true;
+        }
+        return false;
     }
 
     // Need Update
@@ -165,15 +196,19 @@ public class Figure {
     {
         if(e.getKeyCode() == KeyEvent.VK_LEFT)
         {
-//            if(!intersect(-1, 0))
+            Figure newFig = new Figure(game, boxMap, startLeft-1, startTop, movable);
+            if(!newFig.collision(this))
                 setCoordinates(startTop, --startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-//            if(!intersect(-1, 0))
+            Figure newFig = new Figure(game, boxMap, startLeft, startTop+1, movable);
+            if(!newFig.collision(this))
                 setCoordinates(++startTop, startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
+            Figure newFig = new Figure(game, boxMap, startLeft+1, startTop, movable);
+            if(!newFig.collision(this))
             setCoordinates(startTop, ++startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_UP)
@@ -216,5 +251,13 @@ public class Figure {
     public boolean isMovable()
     {
         return movable;
+    }
+
+    public static void main(String[] args)
+    {
+        Figure fig1 = new Figure(null, 0, 0, 2, 2, false);
+        Figure fig2 = new Figure(null, 2, 2, 2, 2, false);
+
+        System.out.println(fig2.intersects(fig1));
     }
 }

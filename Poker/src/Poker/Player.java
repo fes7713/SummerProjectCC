@@ -1,13 +1,16 @@
 package Poker;
 
 import java.awt.*;
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Player implements Comparable<Player>{
     private Hand hand, communityCards;
     private List<Integer> kickers;
-    private Money money, bet, callValue;
+    private Money money, startMoney, bet, callValue;
     private Action status;
     private String name;
     private PokerHand strength;
@@ -25,6 +28,8 @@ public class Player implements Comparable<Player>{
         hand = new Hand();
         kickers = new ArrayList<>();
         name = "Player";
+        money = new Money();
+        startMoney = new Money();
         control = true;
     }
 
@@ -32,6 +37,7 @@ public class Player implements Comparable<Player>{
     {
         communityCards = commCards;
         this.money = new Money(money);
+        startMoney = new Money(money);
         bet = new Money();
         callValue = new Money();
         status = Action.WAIT;
@@ -77,7 +83,7 @@ public class Player implements Comparable<Player>{
 
     public List<Integer> getKickers()
     {
-        return hand.getKickers();
+        return kickers;
     }
 
 
@@ -124,14 +130,20 @@ public class Player implements Comparable<Player>{
         status = Action.WAIT;
     }
 
-    public void takeMoney(int amount)
+    public void takesMoney(int amount)
     {
         money.add(amount);
+    }
+
+    public int givesMoney(int amount)
+    {
+        return money.subtract(amount);
     }
 
     public void pickCard(Card card)
     {
         hand.addCard(card);
+        evalHandAccuracy();
     }
 
     public void pickCards(int[] cards)
@@ -139,6 +151,7 @@ public class Player implements Comparable<Player>{
         for (int card : cards) {
             hand.addCard(new Card(card));
         }
+        evalHandAccuracy();
     }
 
     public void pickCards(Card... cards)
@@ -146,6 +159,7 @@ public class Player implements Comparable<Player>{
         for (Card card : cards) {
             hand.addCard(card);
         }
+        evalHandAccuracy();
     }
 
     public Action getStatus()
@@ -252,7 +266,97 @@ public class Player implements Comparable<Player>{
 
     public String toString()
     {
-        evalHandAccuracy();
+        if(strength == null)
+            evalHandAccuracy();
         return name + ": " + getStrength().name() + hand.toString();
     }
+
+    public static void main(String[] args)
+    {
+        Hand commHand = new Hand(new int[]{2, 6, 20, 35, 40});
+
+        Player p1 = new Player(commHand);
+        p1.takesMoney(2000);
+        p1.pickCards(new Card(9) , new Card(12)); // Two pair // Pair
+        Player p2 = new Player(commHand);
+        p2.takesMoney(1500);
+        p2.pickCards(new Card(22), new Card(25)); //Pair
+        Player p3 = new Player(commHand);
+        p3.takesMoney(3500);
+        p3.pickCards(new Card(18), new Card(26)); // High card
+        Player p4 = new Player(commHand);
+        p4.takesMoney(1000);
+        p4.pickCards(new Card(14), new Card(1)); // Three card
+
+
+        List<Player> players = new ArrayList<>();
+        players.add(p1);
+        players.add(p2);
+        players.add(p3);
+        players.add(p4);
+
+        System.out.println(players);
+
+        Money sidePot = new Money();
+
+        List<Player> sortedPlayers = new ArrayList<>(players);
+        // Remove folds
+        for(int i = 0; i < sortedPlayers.size(); i++)
+            if(sortedPlayers.get(i).getStatus() == Action.FOLD)
+                sortedPlayers.remove(i);
+
+        Collections.sort(sortedPlayers, Comparator.comparingInt(Player::getMoney));
+
+        List<List<Player>> sidePotWinners = new ArrayList<>();
+        List<Integer> sidePotsAmount = new ArrayList<>();
+
+        while(sortedPlayers.size() > 1)
+        {
+            int amount = sortedPlayers.get(0).getMoney();
+
+            // Add money to side pot
+            // Take money from all players in sorted list
+            for(Player player : sortedPlayers)
+            {
+                sidePot.add(player.givesMoney(amount));
+            }
+
+
+            List<Player> tiedPlayers = new ArrayList<>();
+            // Find strongest one and put him in list.
+            Player winner =
+            Collections.max(sortedPlayers, new java.util.Comparator<Player>() {
+                @Override
+                public int compare(Player o1, Player o2) {
+                    return o1.compareTo(o2);
+                }
+            });
+
+            sidePotsAmount.add(sidePot.clear());
+
+            // Firstly, add first guy in the sorted list because he has 0 money for sure
+            tiedPlayers.add(winner);
+
+            // Next, find tied players.
+            for(Player player : sortedPlayers)
+                if(winner.compareTo(player) == 0 && !winner.equals(player))
+                    tiedPlayers.add(player);
+
+            // Lastly remove players who dont have money
+            sortedPlayers.remove(0);
+            while(sortedPlayers.size() > 0 && sortedPlayers.get(0).getMoney() == 0)
+                sortedPlayers.remove(0);
+
+            sidePotWinners.add(tiedPlayers);
+        }
+
+        // Pay money
+        for(int i = 0; i < sidePotWinners.size(); i++)
+        {
+            for(Player player: sidePotWinners.get(i))
+                player.takesMoney(sidePotsAmount.get(i)/sidePotWinners.get(i).size());
+        }
+    }
+
+
 }

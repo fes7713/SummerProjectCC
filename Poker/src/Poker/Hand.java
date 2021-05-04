@@ -112,7 +112,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     {
         card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);
         hand.add(card);
-        strength = evalHandAccuracy();
+//        strength = evalHandAccuracy();
         size++;
     }
 
@@ -123,7 +123,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
             card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);;
             hand.add(card);
         }
-        strength = evalHandAccuracy();
+//        strength = evalHandAccuracy();
         size++;
     }
 

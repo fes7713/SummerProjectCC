@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Game implements ActionListener {
@@ -14,7 +15,7 @@ public class Game implements ActionListener {
     static final int nPlayers = 3;
     static final String[] stages = {"Pre-flop", "Flop", "Turn", "River"};
 
-    private int stageCount;
+    private int stageCount, foldAllinCount;
     private final int INITIAL_MONEY = 100000;
     private List<Player> players;
     private final Deck deck;
@@ -24,11 +25,11 @@ public class Game implements ActionListener {
     private Controller controller;
     private GameInfoPanel infoPanel;
     private String[] names;
-    private int currentPlayerIndex;
-    private int initialPlayerIndex;
+    private int currentPlayerIndex, initialPlayerIndex;
     private Integer[] win;
     private boolean wait;
     private boolean auto = false;
+    private boolean allIn = false;
 
     public Game()
     {
@@ -51,6 +52,7 @@ public class Game implements ActionListener {
         smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
         stageCount = 0;
+        foldAllinCount = 0;
         win = null;
         wait = false;
         gameInit();
@@ -171,29 +173,13 @@ public class Game implements ActionListener {
                     Player.HEIGHT + PokerTable.PADDING, 30, 30);
         }
 
-
         g.setColor(Color.white);
         for(Player player :players)
             player.paint(g);
-
-    }
-
-    public int countFolds()
-    {
-        int count = 0;
-
-        for(Player player :players)
-        {
-            if(player.getStatus() == Action.FOLD)
-            {
-                count++;
-            }
-        }
-        return count;
     }
 
     public void betting() {
-        int callCount = countFolds();
+        int callCount = foldAllinCount;
         int checkCount = 0;
         currentPlayerIndex = initialPlayerIndex;
 
@@ -201,11 +187,16 @@ public class Game implements ActionListener {
         while(callCount < nPlayers && checkCount < nPlayers)
         {
             player = players.get(currentPlayerIndex);
+            // User input will reject fold and all in inside.
             userInput(player);
             Action action = player.getStatus();
-            System.out.println("Yo");
             System.out.println(action);
-            if(action == Action.CALL || action == Action.FOLD || action == Action.BET)
+            if(action == Action.FOLD || action == Action.ALL_IN)
+            {
+                foldAllinCount++;
+                callCount++;
+            }
+            else if(action == Action.CALL || action == Action.BET)
                 callCount++;
             else if(action == Action.CHECK)
                 checkCount++;
@@ -218,11 +209,13 @@ public class Game implements ActionListener {
 
     }
 
+
     private void userInput(Player player) {
         // Auto AI Calc later
         if(!player.isControl())
             return;
-        if(player.getStatus() == Action.FOLD)
+
+        if(player.getStatus() == Action.FOLD || player.getStatus() == Action.ALL_IN)
             return;
 
         // Initialization
@@ -317,16 +310,89 @@ public class Game implements ActionListener {
         betting();
     }
 
-    public void gameEnd() throws InterruptedException {
+    public void AllinBattle()
+    {
+        Money sidePot = new Money();
+        List<Player> sortedPlayers = new ArrayList<>(players);
+        // Remove folds
+        for(int i = 0; i < sortedPlayers.size(); i++)
+            if(sortedPlayers.get(i).getStatus() == Action.FOLD)
+                sortedPlayers.remove(i);
+
+        Collections.sort(sortedPlayers, Comparator.comparingInt(Player::getMoney));
+
+        List<List<Player>> sidePotWinners = new ArrayList<>();
+        List<Integer> sidePotsAmount = new ArrayList<>();
+
+        while(sortedPlayers.size() > 1)
+        {
+            int amount = sortedPlayers.get(0).getMoney();
+
+            // Add money to side pot
+            // Take money from all players in sorted list
+            for(Player player : sortedPlayers)
+            {
+                sidePot.add(player.givesMoney(amount));
+            }
+
+
+            List<Player> tiedPlayers = new ArrayList<>();
+            // Find strongest one and put him in list.
+            Player winner =
+                    Collections.max(sortedPlayers, new java.util.Comparator<Player>() {
+                        @Override
+                        public int compare(Player o1, Player o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+
+            sidePotsAmount.add(sidePot.clear());
+
+            // Firstly, add first guy in the sorted list because he has 0 money for sure
+            tiedPlayers.add(winner);
+
+            // Next, find tied players.
+            for(Player player : sortedPlayers)
+                if(winner.compareTo(player) == 0 && !winner.equals(player))
+                    tiedPlayers.add(player);
+
+            // Lastly remove players who dont have money
+            sortedPlayers.remove(0);
+            while(sortedPlayers.size() > 0 && sortedPlayers.get(0).getMoney() == 0)
+                sortedPlayers.remove(0);
+
+            sidePotWinners.add(tiedPlayers);
+        }
+
+        // Pay money
+        for(int i = 0; i < sidePotWinners.size(); i++)
+        {
+            for(Player player: sidePotWinners.get(i))
+                player.takesMoney(sidePotsAmount.get(i)/sidePotWinners.get(i).size());
+        }
+
+
+    }
+
+    public void gameEnd(){
         System.out.println("End");
 
         // ** Check who is winner
-        Player wonPlayer = players.get(0);
+
+        Player wonPlayer = null;
         ArrayList<Integer> winPlayerList = new ArrayList<>(nPlayers);
-        winPlayerList.add(0);
-        for(int i = 1, compNum; i < nPlayers; i++)
+        for(int i = 0, compNum; i < nPlayers; i++)
         {
             // get compare number and keep it
+            if(players.get(i).getStatus() == Action.FOLD)
+                continue;
+
+            if(wonPlayer == null)
+            {
+                winPlayerList.add(i);
+                wonPlayer = players.get(i);
+            }
+
             compNum = wonPlayer.compareTo(players.get(i));
 
             // Now evaluate compNum and replace winPlayer if necessary
@@ -343,10 +409,16 @@ public class Game implements ActionListener {
         win = winPlayerList.toArray(new Integer[winPlayerList.size()]);
 
         wait = true;
-        if(auto)
-            controller.doCall();
+//        if(auto)
+//            controller.doCall();
         while(wait)
-            Thread.sleep(10);
+            repaint();
+
+        // Pay pot to winner
+        for(Integer integer :win)
+            players.get(integer).takesMoney(pot.getAmount()/win.length);
+        pot.clear();
+        win = null;
     }
 
     public void gameReset()
@@ -360,20 +432,17 @@ public class Game implements ActionListener {
 
 //        smallBlind,
         stageCount = 0;
+        foldAllinCount = 0;
         callTotal.clear();
         initialPlayerIndex = (initialPlayerIndex + 1) % nPlayers;
         currentPlayerIndex = initialPlayerIndex;
 
-        // Pay pot to winner
-        for(Integer integer :win)
-            players.get(integer).takeMoney(pot.getAmount()/win.length);
-        pot.clear();
-        win = null;
+
     }
 
 
 
-    public void run() throws InterruptedException {
+    public void run() {
         while(true)
         {
             preFlop();
@@ -388,7 +457,10 @@ public class Game implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(wait)
+        {
             wait = false;
+            return;
+        }
         if(!players.get(currentPlayerIndex).isControl())
             return;
         String command = e.getActionCommand();
@@ -412,11 +484,17 @@ public class Game implements ActionListener {
                     pay = callTotal.getAmount() - getCurrentPlayerBetTotal();
                     // if not all in
                 else
+                {
+                    allIn = true;
                     pay = getCurrentPlayerMoney();
+                }
             }
             case "Raise" -> pay = controller.getBetMoney() - getCurrentPlayerBetTotal();
 
-            case "ALL-In" -> pay = getCurrentPlayerMoney();
+            case "ALL-In" -> {
+                allIn = true;
+                pay = getCurrentPlayerMoney();
+            }
         }
         System.out.println(command);
         System.out.println(pay);
@@ -424,14 +502,14 @@ public class Game implements ActionListener {
         players.get(currentPlayerIndex).setCallValue(getCallTotal());
         callTotal.setAmount(players.get(currentPlayerIndex).proceedActionCommand(pay));
 
-        // if not fold.
+        // if not fol
         if(pay > 0)
             pot.add(pay);
 
         repaint();
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Game game = new Game();
         game.run();
 

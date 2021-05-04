@@ -7,15 +7,16 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Game {
-    private int MAX_ROW = 20;
-    private int MAX_COL = 10;
-    private final int BOX_SIZE = 30;
-    private final int  START_POS = 50;
+    static final int MAX_ROW = 20;
+    static final int MAX_COL = 10;
+    static final int BOX_SIZE = 30;
+    static final int  START_POS = 50;
 
     private int[][] map;
     private Display display;
     private ArrayList<Figure> figures;
     private ScoreBoard score = new ScoreBoard();
+//    private TetrisFigure movingFigure;
 
     // Done
     public Game()
@@ -41,15 +42,15 @@ public class Game {
     {
         figures.add(fig);
     }
-    
+
     public static Figure randFig(List<Figure> list)
     {
         int rand = (int)(Math.random() * list.size());
         Figure randomFig = list.get(rand);
-        
+
         return randomFig;
     }
-    
+
     // WIP
     // Main run function
     public void run() throws InterruptedException {
@@ -102,10 +103,15 @@ public class Game {
         return map;
     }
 
+    public void hitBottom()
+    {
+
+    }
+
     // Test main
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
-        
+
         //just testing
         List<Figure> list = new ArrayList<>();
         list.add(new TetrisFigure(game, BlockType.I));
@@ -115,21 +121,10 @@ public class Game {
         list.add(new TetrisFigure(game, BlockType.Z));
         list.add(new TetrisFigure(game, BlockType.T));
         list.add(new TetrisFigure(game, BlockType.O));
-        
-        Figure randomFig = randFig(list);
-        game.add(randomFig);
-        
-        // Test game. Use arrow keys to move figures
-//        game.add(new Figure(game, 1, 1, 1, 1, true));
-//        game.add(new Figure(game, 0, 0, 1, 1, true));
 
-//        boolean[][] testBoxMap = {
-//                {false, true, true},
-//                {true, true, false},
-//                {true, true, false}
-//        };
+        Figure movingFigure = randFig(list);
+        game.add(movingFigure);
 
-//        game.add(new TetrisFigure(game, BlockType.Z));
 
 
         game.run();
