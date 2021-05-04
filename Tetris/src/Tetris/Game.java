@@ -16,11 +16,17 @@ public class Game {
     private Display display;
     private ArrayList<Figure> figures;
     private ScoreBoard score = new ScoreBoard();
+    private final List<Figure> tetrisFigures = new ArrayList<>();
+    Figure movingFigure;
+    private boolean hit;
+
 //    private TetrisFigure movingFigure;
 
     // Done
     public Game()
     {
+        // Collision
+        hit = false;
         // If you want u can use 2D map to represent the tetris table
         map = new int[MAX_ROW][MAX_COL];
 
@@ -57,9 +63,17 @@ public class Game {
         gameInit();
         while(true)
         {
+            if(hit)
+            {
+                movingFigure.setMovable(false);
+                movingFigure = randFig(tetrisFigures);
+                add(movingFigure);
+                hit = false;
+            }
+            System.out.println(hit);
             // Display class is responsible for updating the game display.
             this.display.repaint();
-            Thread.sleep(70);
+//            Thread.sleep(70);
         }
     }
 
@@ -67,7 +81,15 @@ public class Game {
     // Set up display, score board and generate first block.
     private void gameInit()
     {
-
+        tetrisFigures.add(new TetrisFigure(this, BlockType.I));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.J));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.L));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.S));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.Z));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.T));
+        tetrisFigures.add(new TetrisFigure(this, BlockType.O));
+        movingFigure = randFig(tetrisFigures);
+        add(movingFigure);
     }
 
     // Done
@@ -105,27 +127,12 @@ public class Game {
 
     public void hitBottom()
     {
-
+        hit = true;
     }
 
     // Test main
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
-
-        //just testing
-        List<Figure> list = new ArrayList<>();
-        list.add(new TetrisFigure(game, BlockType.I));
-        list.add(new TetrisFigure(game, BlockType.J));
-        list.add(new TetrisFigure(game, BlockType.L));
-        list.add(new TetrisFigure(game, BlockType.S));
-        list.add(new TetrisFigure(game, BlockType.Z));
-        list.add(new TetrisFigure(game, BlockType.T));
-        list.add(new TetrisFigure(game, BlockType.O));
-
-        Figure movingFigure = randFig(list);
-        game.add(movingFigure);
-
-
 
         game.run();
     }

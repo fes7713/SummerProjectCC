@@ -19,7 +19,7 @@ public class Figure {
     public Figure(Game game, boolean movable)
     {
         this.game = game;
-        startLeft = 0;
+        startLeft = 4;
         startTop = 0;
         this.movable = movable;
     }
@@ -204,12 +204,14 @@ public class Figure {
             Figure newFig = new Figure(game, boxMap, startLeft, startTop+1, movable);
             if(!newFig.collision(this))
                 setCoordinates(++startTop, startLeft);
+            else
+                game.hitBottom();
         }
         else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
         {
             Figure newFig = new Figure(game, boxMap, startLeft+1, startTop, movable);
             if(!newFig.collision(this))
-            setCoordinates(startTop, ++startLeft);
+                setCoordinates(startTop, ++startLeft);
         }
         else if(e.getKeyCode() == KeyEvent.VK_UP)
         {
@@ -251,6 +253,11 @@ public class Figure {
     public boolean isMovable()
     {
         return movable;
+    }
+
+    public void setMovable(boolean movable)
+    {
+        this.movable = movable;
     }
 
     public static void main(String[] args)
