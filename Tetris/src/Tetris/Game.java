@@ -16,7 +16,7 @@ public class Game {
     private Display display;
     private ArrayList<Figure> figures;
     private ScoreBoard score = new ScoreBoard();
-    private final List<Figure> tetrisFigures = new ArrayList<>();
+    private final List<TetrisFigure> tetrisFigures = new ArrayList<>();
     Figure movingFigure;
     private boolean hit;
 
@@ -49,10 +49,10 @@ public class Game {
         figures.add(fig);
     }
 
-    public static Figure randFig(List<Figure> list)
+    public TetrisFigure randFig(List<TetrisFigure> list)
     {
         int rand = (int)(Math.random() * list.size());
-        Figure randomFig = list.get(rand);
+        TetrisFigure randomFig = new TetrisFigure(this, list.get(rand).getBlockType());
 
         return randomFig;
     }
@@ -63,14 +63,16 @@ public class Game {
         gameInit();
         while(true)
         {
+
             if(hit)
             {
+                System.out.println(hit);
                 movingFigure.setMovable(false);
                 movingFigure = randFig(tetrisFigures);
                 add(movingFigure);
                 hit = false;
             }
-            System.out.println(hit);
+
             // Display class is responsible for updating the game display.
             this.display.repaint();
 //            Thread.sleep(70);

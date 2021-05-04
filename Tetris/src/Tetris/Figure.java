@@ -16,6 +16,7 @@ public class Figure {
     private boolean movable;
 
     // Constructors with different signatures.
+
     public Figure(Game game, boolean movable)
     {
         this.game = game;
@@ -259,6 +260,8 @@ public class Figure {
     {
         this.movable = movable;
     }
+
+
 
     public static void main(String[] args)
     {

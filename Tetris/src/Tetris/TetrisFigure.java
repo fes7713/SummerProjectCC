@@ -4,6 +4,7 @@ package Tetris;
 // Use switch statement if you want.
 public class TetrisFigure extends Figure
 {
+    private BlockType blockType;
     static final boolean[][] figI = {
             {false, true, false, false},
             {false, true, false, false},
@@ -49,6 +50,7 @@ public class TetrisFigure extends Figure
     public TetrisFigure(Game game, BlockType blockType)
     {
         super(game, true);
+        this.blockType = blockType;
         switch(blockType)
         {
             case I -> setMap(figI);
@@ -59,7 +61,10 @@ public class TetrisFigure extends Figure
             case T -> setMap(figT);
             case Z -> setMap(figZ);
         }
+    }
 
-        
+    public BlockType getBlockType()
+    {
+        return blockType;
     }
 }
