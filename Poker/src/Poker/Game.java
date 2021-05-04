@@ -17,25 +17,24 @@ public class Game implements ActionListener {
     private int stageCount;
     private final int INITIAL_MONEY = 100000;
     private List<Player> players;
-    private Deck deck;
-    private Hand communityCards;
-    private Money pot, smallBlind, callTotal;
-    private PokerTable pokerTable;
+    private final Deck deck;
+    private final Hand communityCards;
+    private final Money pot, smallBlind, callTotal;
+    private final PokerTable pokerTable;
     private Controller controller;
     private GameInfoPanel infoPanel;
     private String[] names;
-    private int mainPlayerIndex;
     private int currentPlayerIndex;
     private int initialPlayerIndex;
     private Integer[] win;
     private boolean wait;
+    private boolean auto = false;
 
     public Game()
     {
         deck = new Deck();
         communityCards = new Hand(PokerTable.PADDING, PokerTable.PADDING * 2);
 
-        mainPlayerIndex = 0;
         initialPlayerIndex = 0;
         currentPlayerIndex = initialPlayerIndex;
 
@@ -65,22 +64,13 @@ public class Game implements ActionListener {
         frame.setSize(780, 800);
         frame.setLayout(new BorderLayout());
 
-//        JPanel p = new JPanel();
-//        p.setBackground(PokerTable.PRIMARY_COLOR);
         controller = new Controller(this);
         infoPanel = new GameInfoPanel(this);
-//        p.add(pokerTable);
-//        p.add(infoPanel);
-//        p.add(controller);
-
-
-
 
         frame.add(pokerTable, BorderLayout.WEST);
         frame.add(infoPanel, BorderLayout.EAST);
         frame.add(controller, BorderLayout.SOUTH);
-//        frame.add(p);
-//        frame.setBackground(PokerTable.PRIMARY_COLOR);
+
         frame.setVisible(true);
     }
 
@@ -119,16 +109,6 @@ public class Game implements ActionListener {
         return smallBlind.getAmount();
     }
 
-    public int getMainPlayerIndex()
-    {
-        return mainPlayerIndex;
-    }
-
-    public int getPlayerMoney(int index)
-    {
-        return players.get(index).getMoney();
-    }
-
     public int getCurrentPlayerMoney()
     {
         return players.get(currentPlayerIndex).getMoney();
@@ -147,11 +127,6 @@ public class Game implements ActionListener {
     public String getStage()
     {
         return stages[stageCount];
-    }
-    // Change it later with getBetTotal(int playerIndex)
-    public int getPlayerBetTotal(int index)
-    {
-        return players.get(index).getBetTotal();
     }
 
     public int getCurrentPlayerBetTotal()
@@ -256,6 +231,9 @@ public class Game implements ActionListener {
         else
             controller.initCallButton();
         controller.initController();
+
+        if(auto)
+            controller.doCall();
 
         while(true)
         {
@@ -365,6 +343,8 @@ public class Game implements ActionListener {
         win = winPlayerList.toArray(new Integer[winPlayerList.size()]);
 
         wait = true;
+        if(auto)
+            controller.doCall();
         while(wait)
             Thread.sleep(10);
     }
@@ -383,6 +363,11 @@ public class Game implements ActionListener {
         callTotal.clear();
         initialPlayerIndex = (initialPlayerIndex + 1) % nPlayers;
         currentPlayerIndex = initialPlayerIndex;
+
+        // Pay pot to winner
+        for(Integer integer :win)
+            players.get(integer).takeMoney(pot.getAmount()/win.length);
+        pot.clear();
         win = null;
     }
 

@@ -120,8 +120,8 @@ class Controller extends JPanel implements ActionListener, ChangeListener
                 game.getCurrentPlayerMoney()/scaleConst,
                 game.getSmallBlind()/scaleConst);
         betSlider.setBackground(PokerTable.PRIMARY_COLOR);
-        betSlider.setMajorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/5);
-        betSlider.setMinorTickSpacing(game.getPlayerMoney(game.getMainPlayerIndex())/scaleConst/10);
+        betSlider.setMajorTickSpacing(game.getCurrentPlayerMoney()/scaleConst/5);
+        betSlider.setMinorTickSpacing(game.getCurrentPlayerMoney()/scaleConst/10);
         betSlider.setPaintTicks(true);
 
         gbc.gridx = 1;
@@ -208,7 +208,7 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         money.setAmount(value);
     }
 
-    public void clickCall()
+    public void doCall()
     {
         callButton.doClick();
     }

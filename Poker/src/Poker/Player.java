@@ -124,7 +124,7 @@ public class Player implements Comparable<Player>{
         status = Action.WAIT;
     }
 
-    public void addMoney(int amount)
+    public void takeMoney(int amount)
     {
         money.add(amount);
     }
@@ -219,7 +219,9 @@ public class Player implements Comparable<Player>{
         evalHandAccuracy();
         g.drawString("Money :" + money.getAmount(), x, y + 10);
         g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.PADDING);
-        g.drawString("Hand :" + getStrength() + "(" + Card.NUMBERS[kickers.get(0)] + ")", x, y + 10 + PokerTable.PADDING * 2);
+
+        String kickerStr = kickers.size() == 0 ? "" : Card.NUMBERS[kickers.get(0)];
+        g.drawString("Hand :" + getStrength() + "(" + kickerStr + ")", x, y + 10 + PokerTable.PADDING * 2);
         hand.paint(g);
     }
 
