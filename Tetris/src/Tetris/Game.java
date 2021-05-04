@@ -2,6 +2,7 @@ package Tetris;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -40,7 +41,15 @@ public class Game {
     {
         figures.add(fig);
     }
-
+    
+    public static Figure randFig(List<Figure> list)
+    {
+        int rand = (int)(Math.random() * list.size());
+        Figure randomFig = list.get(rand);
+        
+        return randomFig;
+    }
+    
     // WIP
     // Main run function
     public void run() throws InterruptedException {
@@ -96,18 +105,31 @@ public class Game {
     // Test main
     public static void main(String[] args) throws InterruptedException {
         Game game = new Game();
-
+        
+        //just testing
+        List<Figure> list = new ArrayList<>();
+        list.add(new TetrisFigure(game, BlockType.I));
+        list.add(new TetrisFigure(game, BlockType.J));
+        list.add(new TetrisFigure(game, BlockType.L));
+        list.add(new TetrisFigure(game, BlockType.S));
+        list.add(new TetrisFigure(game, BlockType.Z));
+        list.add(new TetrisFigure(game, BlockType.T));
+        list.add(new TetrisFigure(game, BlockType.O));
+        
+        Figure randomFig = randFig(list);
+        game.add(randomFig);
+        
         // Test game. Use arrow keys to move figures
 //        game.add(new Figure(game, 1, 1, 1, 1, true));
-        game.add(new Figure(game, 0, 0, 1, 1, true));
+//        game.add(new Figure(game, 0, 0, 1, 1, true));
 
-        boolean[][] testBoxMap = {
-                {false, true, true},
-                {true, true, false},
-                {true, true, false}
-        };
+//        boolean[][] testBoxMap = {
+//                {false, true, true},
+//                {true, true, false},
+//                {true, true, false}
+//        };
 
-        game.add(new TetrisFigure(game, BlockType.S));
+//        game.add(new TetrisFigure(game, BlockType.Z));
 
 
         game.run();
