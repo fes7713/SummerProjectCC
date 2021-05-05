@@ -51,6 +51,20 @@ public class Card implements Comparable<Card>{
         image = Toolkit.getDefaultToolkit().getImage("assets/" + NUMBERS[number] + SUITS[suit] + ".png");
     }
 
+    public Card(String color)
+    {
+        this(52);
+        switch(color)
+        {
+            case "Red" -> image = Toolkit.getDefaultToolkit().getImage("assets/red_back.png");
+            case "Green" -> image = Toolkit.getDefaultToolkit().getImage("assets/green_back.png");
+            case "Yellow" -> image = Toolkit.getDefaultToolkit().getImage("assets/yellow_back.png");
+            case "Purple" -> image = Toolkit.getDefaultToolkit().getImage("assets/purple_back.png");
+            case "Gray" -> image = Toolkit.getDefaultToolkit().getImage("assets/gray_back.png");
+            case "Blue" -> image = Toolkit.getDefaultToolkit().getImage("assets/blue_back.png");
+        }
+    }
+
     public void setSortOrder(SortOrder order)
     {
         sortOrder = order;

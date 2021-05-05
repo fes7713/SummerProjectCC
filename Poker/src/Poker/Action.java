@@ -2,6 +2,8 @@ package Poker;
 
 public enum Action {
     WAIT,
+    SB,
+    BB,
     FOLD,
     CHECK,
     CALL,

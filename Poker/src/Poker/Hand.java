@@ -61,6 +61,15 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         }
     }
 
+    public Hand(int x, int y, int size, String color)
+    {
+        this(x, y);
+        for(int i = 0; i < size; i++)
+        {
+            addCards(new Card(color));
+        }
+    }
+
     public List<Card> reset()
     {
         List<Card> temp = hand;
@@ -112,7 +121,6 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     {
         card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);
         hand.add(card);
-//        strength = evalHandAccuracy();
         size++;
     }
 
@@ -123,9 +131,9 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
             card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);;
             hand.add(card);
         }
-//        strength = evalHandAccuracy();
         size++;
     }
+
 
     public void sort()
     {

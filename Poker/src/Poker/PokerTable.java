@@ -213,6 +213,13 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         callButton.doClick();
     }
 
+    public void doRaise(int raise)
+    {
+        money.setAmount(raise);
+        updatedMoney();
+        callButton.doClick();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object obj = e.getSource();

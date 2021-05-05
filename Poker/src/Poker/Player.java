@@ -9,8 +9,9 @@ import java.util.List;
 
 public class Player implements Comparable<Player>{
     private Hand hand, communityCards;
+    private Hand hiddenHand;
     private List<Integer> kickers;
-    private Money money, startMoney, bet, callValue;
+    private Money money, startMoney, bet;
     private Action status;
     private String name;
     private PokerHand strength;
@@ -18,9 +19,11 @@ public class Player implements Comparable<Player>{
     private int x;
     private int y;
     private boolean wait;
+    private boolean showdown;
 
     static final int HEIGHT = PokerTable.PADDING * 3 + Card.CARD_HEIGHT;
     static final int WIDTH = Card.CARD_WIDTH * Game.HAND_SIZE + PokerTable.PADDING;
+
 
     public Player(Hand commCards)
     {
@@ -31,6 +34,7 @@ public class Player implements Comparable<Player>{
         money = new Money();
         startMoney = new Money();
         control = true;
+        showdown = false;
     }
 
     public Player(Hand commCards, int money, boolean control)
@@ -39,11 +43,12 @@ public class Player implements Comparable<Player>{
         this.money = new Money(money);
         startMoney = new Money(money);
         bet = new Money();
-        callValue = new Money();
         status = Action.WAIT;
         wait = true;
         this.control = control;
         name = "Player";
+        showdown = false;
+
     }
 
     public Player(Hand commCards, int money, int x, int y, boolean control)
@@ -52,6 +57,7 @@ public class Player implements Comparable<Player>{
         this.x = x;
         this.y = y;
         hand = new Hand(x, y + PokerTable.PADDING * 3);
+        hiddenHand = new Hand(x, y + PokerTable.PADDING * 3, Game.HAND_SIZE, "Blue");
     }
 
     public Player(Hand commCards, int money, int[] cards, int x, int y, boolean control)
@@ -60,6 +66,7 @@ public class Player implements Comparable<Player>{
         this.x = x;
         this.y = y;
         hand = new Hand(cards, x, y + PokerTable.PADDING * 3);
+        hiddenHand = new Hand(x, y + PokerTable.PADDING * 3, Game.HAND_SIZE, "Blue");
     }
 
     public void evalHandAccuracy()
@@ -103,17 +110,24 @@ public class Player implements Comparable<Player>{
         return bet.getAmount();
     }
 
-    public void setCallValue(int value) {
-        callValue.setAmount(value);
-    }
-
     public boolean isWait() {
         return wait;
     }
 
+    public void setWait(boolean wait)
+    {
+        this.wait = wait;
+    }
+
+
     public boolean isControl()
     {
         return control;
+    }
+
+    public void showdown()
+    {
+        showdown = true;
     }
 
     public void turnOnWait() {
@@ -128,6 +142,10 @@ public class Player implements Comparable<Player>{
     public void clearStatus()
     {
         status = Action.WAIT;
+    }
+
+    public void setStatus(Action action) {
+        status = action;
     }
 
     public void takesMoney(int amount)
@@ -167,33 +185,77 @@ public class Player implements Comparable<Player>{
         return status;
     }
 
+    public int AiCall(int callTotal, int SBValue, Money payDest)
+    {
+        int pay = 0;
+
+        // Bet
+        if(callTotal == 0)
+        {
+            // Pay SB
+            if(SBValue <= money.getAmount())
+            {
+                pay = SBValue;
+                bet.add(money.subtract(pay));
+                status = Action.CALL;
+            }
+            // Fold
+            else
+            {
+                status = Action.FOLD;
+                return callTotal;
+            }
+        }
+        else{
+            // Difference between callTotal and bet is what you need to pay to move on
+            if (callTotal - bet.getAmount() <= money.getAmount())
+            {
+                pay = callTotal - bet.getAmount();
+                bet.add(money.subtract(pay));
+                status = Action.CALL;
+            }
+            else
+            {
+                pay = bet.getAmount();
+                status = Action.ALL_IN;
+                bet.add(money.clear());
+            }
+        }
+        payDest.add(pay);
+        return bet.getAmount();
+    }
 
     // Return pay amount to the pot
-    public int proceedActionCommand(int betAmount)
+    public int proceedActionCommand(int callTotal, int betAmount)
     {
-        wait = false;
+//        wait = false;
         if(status == Action.FOLD || status == Action.ALL_IN)
             return 0;
         if(betAmount == -2)
-        {
-            wait = true;
-            return callValue.getAmount();
-        }
+            return 0;
         else if(betAmount == -1)
         {
             status = Action.FOLD;
+            return callTotal;
         }
         else if(betAmount == 0)
         {
             status = Action.CHECK;
         }
-        else if(callValue.getAmount() == 0)
+        else if(callTotal == 0)
         {
-            status = Action.BET;
+            // Improve maybe??
+            if(status == Action.SB) {
+            }
+            else if(betAmount == money.getAmount())
+                status = Action.ALL_IN;
+            else
+                status = Action.BET;
             bet.add(money.subtract(betAmount));
         }
-        else if(betAmount + bet.getAmount() == callValue.getAmount())
+        else if(betAmount + bet.getAmount() == callTotal)
         {
+            System.out.println(bet.getAmount());
             status = Action.CALL;
             bet.add(money.subtract(betAmount));
         }
@@ -204,7 +266,11 @@ public class Player implements Comparable<Player>{
         }
         else
         {
-            status = Action.RAISE;
+            // Improve maybe??
+            if(status == Action.BB) {
+            }
+            else
+                status = Action.RAISE;
             bet.add(money.subtract(betAmount));
         }
         return bet.getAmount();
@@ -216,14 +282,17 @@ public class Player implements Comparable<Player>{
     }
 
     // Return hand cards
-    public List<Card> reset()
+    public List<Card> reset(int smallBlind)
     {
         kickers =  new ArrayList<>();
         bet.clear();
-        callValue.clear();
-        status = Action.WAIT;
+        if(money.getAmount() < smallBlind)
+            status = Action.FOLD;
+        else
+            status = Action.WAIT;
         strength = null;
         wait = true;
+        showdown = false;
         return hand.reset();
 
     }
@@ -235,8 +304,14 @@ public class Player implements Comparable<Player>{
         g.drawString(status + "    Bet :" + getBetTotal(), x, y + 10 + PokerTable.PADDING);
 
         String kickerStr = kickers.size() == 0 ? "" : Card.NUMBERS[kickers.get(0)];
-        g.drawString("Hand :" + getStrength() + "(" + kickerStr + ")", x, y + 10 + PokerTable.PADDING * 2);
-        hand.paint(g);
+        if(control || showdown)
+        {
+            g.drawString("Hand :" + getStrength() + "(" + kickerStr + ")", x, y + 10 + PokerTable.PADDING * 2);
+            hand.paint(g);
+        }
+        else
+            hiddenHand.paint(g);
+
     }
 
     @Override
