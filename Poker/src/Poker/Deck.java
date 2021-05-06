@@ -1,8 +1,6 @@
 package Poker;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class Deck {
     static final int SIZE = 52;
@@ -22,6 +20,8 @@ public class Deck {
             deck.push(new Card(i, 0, 0));
         }
     }
+
+
 
     public int size()
     {
@@ -54,5 +54,41 @@ public class Deck {
         {
             deck.addAll(cards);
         }
+    }
+
+    public static void shuffle(int[] deck)
+    {
+        Random rand = new Random();
+        for(int i = deck.length - 1; i > 0; i--){
+            int j = rand.nextInt(i + 1);
+            if(i != j) {
+                int t = deck[i];
+                deck[i] = deck[j];
+                deck[j] = t;
+            }
+        }
+    }
+
+
+    public static int[] fill(int[] excludes)
+    {
+        int [] deck = new int[Deck.SIZE];
+        int count = 0;
+        for(int i = 0; i < Deck.SIZE;i++)
+        {
+            if(!contains(excludes, i))
+                deck[i - count] = i;
+            else
+                count++;
+        }
+        return Arrays.copyOf(deck, deck.length - count);
+    }
+
+    public static boolean contains(int[] arr, int num)
+    {
+        for(int i = 0; i < arr.length; i++)
+            if(arr[i] == num)
+                return true;
+        return false;
     }
 }

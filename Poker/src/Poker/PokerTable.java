@@ -39,8 +39,6 @@ public class PokerTable extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-//        hand1.paint(g2d);
-//        player1.paint(g2d);
         game.paint(g2d);
     }
 }
@@ -305,5 +303,50 @@ class GameInfoPanel extends JPanel
         {
             g2d.drawString(playerNames[i] + ": " + playerStatuses[i], PADDING, PADDING*5+ PADDING * i * 2);
         }
+    }
+}
+
+class PlayerInfoPanel extends JPanel
+{
+    private Player player;
+
+    static final int trials = 10000;
+
+    public PlayerInfoPanel(Player player) {
+        this.player = player;
+        setPreferredSize(new Dimension(340, 300));
+        setBackground(PokerTable.PRIMARY_COLOR);
+    }
+
+    public void paint(Graphics g)
+    {
+        super.paint(g);
+        Graphics2D g2d = (Graphics2D) g;
+        float[] statsHand = player.handStrengthPredict(trials);
+        PokerHand[] handTypes = PokerHand.values();
+
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, 14));
+        g2d.setColor(Color.WHITE);
+        for(int i = 0; i < statsHand.length; i++)
+        {
+            g2d.drawString(String.format("%s", handTypes[i].toString()), 50, 50 + 20*i);
+            g2d.drawString(String.format("%.2f%%", statsHand[i]), 250, 50 + 20*i);
+        }
+        g2d.drawRoundRect(20, 20, 300, 260, 30, 30);
+    }
+
+    public static void main(String[] args)
+    {
+        JFrame frame = new JFrame("test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(360, 340);
+        Hand commHand1 = new Hand(new int[]{});
+        Player p1 = new Player(commHand1);
+        p1.takesMoney(2000);
+        p1.pickCards(new Card(9) , new Card(22));
+
+        PlayerInfoPanel infoPanel = new PlayerInfoPanel(p1);
+        frame.add(infoPanel);
+        frame.setVisible(true);
     }
 }

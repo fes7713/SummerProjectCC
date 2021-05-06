@@ -107,6 +107,11 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         return y;
     }
 
+    public int size()
+    {
+        return size;
+    }
+
     public List<Card> getCards()
     {
         return hand;
@@ -130,8 +135,8 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         {
             card.setCoordinate(x + Card.CARD_WIDTH * hand.size(), y);;
             hand.add(card);
+            size++;
         }
-        size++;
     }
 
 
@@ -182,7 +187,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
-                    return PokerHand.ROYAL_FLUSH;
+                    return PokerHand.ROYAL_STRAIGHT_FLUSH;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -310,7 +315,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
-                    return PokerHand.ROYAL_FLUSH;
+                    return PokerHand.ROYAL_STRAIGHT_FLUSH;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -679,7 +684,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     public void testHands()
     {
         Map<PokerHand, Integer> ans7 = new HashMap<>();
-        ans7.put(PokerHand.ROYAL_FLUSH, 4324);
+        ans7.put(PokerHand.ROYAL_STRAIGHT_FLUSH, 4324);
         ans7.put(PokerHand.STRAIGHT_FLUSH, 37260);
         ans7.put(PokerHand.FOUR_OF_A_KIND, 224848);
         ans7.put(PokerHand.FULL_HOUSE, 3473184);

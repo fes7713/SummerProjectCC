@@ -14,6 +14,7 @@ public class Game implements ActionListener {
     static final int COMMUNITY_CARDS_SIZE = 5;
     static final int nPlayers = 3;
     static final String[] stages = {"Pre-flop", "Flop", "Turn", "River"};
+    static final int mainPlayerIndex = 0;
 
     private int stageCount;
     private final int INITIAL_MONEY = 10000;
@@ -23,7 +24,8 @@ public class Game implements ActionListener {
     private final Money pot, smallBlind, callTotal;
     private final PokerTable pokerTable;
     private Controller controller;
-    private GameInfoPanel infoPanel;
+    private GameInfoPanel gameInfoPanel;
+    private PlayerInfoPanel playerInfoPanel;
     private String[] names;
     private int currentPlayerIndex, initialPlayerIndex;
     private Integer[] win;
@@ -64,15 +66,22 @@ public class Game implements ActionListener {
     {
         JFrame frame = new JFrame("Simple game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(780, 800);
+        frame.setSize(780, 750);
         frame.setLayout(new BorderLayout());
 
         controller = new Controller(this);
-        infoPanel = new GameInfoPanel(this);
+        gameInfoPanel = new GameInfoPanel(this);
+        playerInfoPanel = new PlayerInfoPanel(players.get(mainPlayerIndex));
 
-        frame.add(pokerTable, BorderLayout.WEST);
-        frame.add(infoPanel, BorderLayout.EAST);
-        frame.add(controller, BorderLayout.SOUTH);
+        frame.add(pokerTable, BorderLayout.CENTER);
+        frame.add(gameInfoPanel, BorderLayout.EAST);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(controller, BorderLayout.CENTER);
+        panel.add(playerInfoPanel, BorderLayout.WEST);
+
+        frame.add(panel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
@@ -140,7 +149,7 @@ public class Game implements ActionListener {
     public void repaint()
     {
         pokerTable.repaint();
-        infoPanel.repaint();
+        gameInfoPanel.repaint();
     }
 
     public void paint(Graphics2D g)
@@ -182,6 +191,7 @@ public class Game implements ActionListener {
         g.setColor(Color.white);
         for(Player player :players)
             player.paint(g);
+
     }
 
     public void betting() {
@@ -363,6 +373,7 @@ public class Game implements ActionListener {
         stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
+        playerInfoPanel.repaint();
         betting();
 
     }
@@ -370,14 +381,16 @@ public class Game implements ActionListener {
     public void turn() {
         stageCount = (stageCount + 1) % 4;
         stageInit();
-        communityCards.addCards(deck.pop());
+        communityCards.addCard(deck.pop());
+        playerInfoPanel.repaint();
         betting();
     }
 
     public void river() {
         stageCount = (stageCount + 1) % 4;
         stageInit();
-        communityCards.addCards(deck.pop());
+        communityCards.addCard(deck.pop());
+        playerInfoPanel.repaint();
         betting();
     }
 
