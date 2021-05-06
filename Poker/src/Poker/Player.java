@@ -1,10 +1,7 @@
 package Poker;
 
 import java.awt.*;
-import java.awt.image.AreaAveragingScaleFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 
 public class Player implements Comparable<Player>{
@@ -78,9 +75,9 @@ public class Player implements Comparable<Player>{
         kickers = h.getKickers();
     }
 
-    public float[] handStrengthPredict(int nTrials)
+    public double[] handStrengthPrediction(int nTrials)
     {
-        float[] handStrength = new float[PokerHand.values().length];
+        double[] handStrength = new double[PokerHand.values().length];
 
         // Copy hand
         ArrayList<Card> cards = new ArrayList<>(communityCards.getCards());
@@ -113,6 +110,76 @@ public class Player implements Comparable<Player>{
         }
 
         return handStrength;
+    }
+
+    public float winRatePrediction(int nPlayers, int nTrials)
+    {
+        // Copy hand
+        List<Card> commCards = communityCards.getCards();
+        int commSize = communityCards.size();
+        int[] excludes = new int[commSize + Game.HAND_SIZE];
+
+        // Copy community cards to players array
+        int[][] botsCards = new int[nPlayers - 1][Game.COMMUNITY_CARDS_SIZE + Game.HAND_SIZE];
+        int[] playerCards = new int[Game.COMMUNITY_CARDS_SIZE + Game.HAND_SIZE];
+
+        for(int i = 0; i < commSize; i++)
+        {
+            int cardId = commCards.get(i).getId();
+            for(int j = 0; j < nPlayers - 1; j++)
+            {
+                botsCards[j][i] = cardId;
+            }
+            excludes[i] = cardId;
+            playerCards[i] = cardId;
+        }
+
+        for(int i = 0; i < Game.HAND_SIZE; i++)
+        {
+            excludes[commSize + i] = hand.get(i).getId();
+            playerCards[commSize + i] = hand.get(i).getId();
+        }
+
+
+        // Prepare deck
+        int[] deck = Deck.fill(excludes);
+        int winCount = 0;
+        for(int i = 0; i < nTrials; i++)
+        {
+            Deck.shuffle(deck);
+            int deckShift = 0;
+            // Bot hands
+            for(int j = 0; j < nPlayers - 1; j++)
+            {
+                for(int k = 0; k < Game.HAND_SIZE; k++)
+                {
+                    botsCards[j][k + commSize] = deck[deckShift++];
+                }
+            }
+
+            // CommCards add to players
+            int commCardNeed = Game.COMMUNITY_CARDS_SIZE - communityCards.size();
+            for(int j = 0; j < commCardNeed; j++)
+            {
+                playerCards[Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
+                for(int k = 0; k < nPlayers - 1; k++)
+                    botsCards[k][Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
+            }
+
+            Hand playerHand = new Hand(playerCards);
+            Hand[] botsHand = new Hand[nPlayers - 1];
+            for(int j = 0; j < nPlayers - 1; j++)
+                botsHand[j]  = new Hand(botsCards[j]);
+
+            List<Hand> hands = new ArrayList<>();
+            hands.add(playerHand);
+            hands.addAll(Arrays.asList(botsHand).subList(0, nPlayers - 1));
+
+            Hand win = Collections.max(hands);
+            if(win.equals(playerHand))
+                winCount++;
+        }
+        return winCount/(float)nTrials;
     }
 
     public void rename(String name)
@@ -376,13 +443,12 @@ public class Player implements Comparable<Player>{
         return name + ": " + getStrength().name() + hand.toString();
     }
 
-    public static void main(String[] args)
-    {
-        Hand commHand = new Hand(new int[]{2, 6, 20, 35});
+    public static void main(String[] args) {
+        Hand commHand = new Hand(new int[]{2, 6, 20, 35, 40});
         Hand commHand1 = new Hand(new int[]{});
-        Player p1 = new Player(commHand);
+        Player p1 = new Player(commHand1);
         p1.takesMoney(2000);
-        p1.pickCards(new Card(9) , new Card(22)); // Two pair // Pair
+        p1.pickCards(new Card(0), new Card(13)); // Two pair // Pair
         Player p2 = new Player(commHand);
         p2.takesMoney(1500);
         p2.pickCards(new Card(22), new Card(25)); //Pair
@@ -402,23 +468,63 @@ public class Player implements Comparable<Player>{
 
         System.out.println(players);
 
-        float[] handStrength = p1.handStrengthPredict(100000);
 
-        for(int i = 0; i < handStrength.length; i++)
-        {
-            System.out.print(PokerHand.values()[i] + " :");
-            System.out.println(handStrength[i]);
+        Money sidePot = new Money();
+        List<Player> sortedPlayers = new ArrayList<>(players);
+        // Remove folds
+        for (int i = 0; i < sortedPlayers.size(); i++)
+            if (sortedPlayers.get(i).getStatus() == Action.FOLD)
+                sortedPlayers.remove(i);
+
+        Collections.sort(sortedPlayers, Comparator.comparingInt(Player::getMoney));
+
+        List<List<Player>> sidePotWinners = new ArrayList<>();
+        List<Integer> sidePotsAmount = new ArrayList<>();
+
+        while (sortedPlayers.size() > 1) {
+            int amount = sortedPlayers.get(0).getMoney();
+
+            // Add money to side pot
+            // Take money from all players in sorted list
+            for (Player player : sortedPlayers) {
+                sidePot.add(player.givesMoney(amount));
+            }
+
+
+            List<Player> tiedPlayers = new ArrayList<>();
+            // Find strongest one and put him in list.
+            Player winner =
+                    Collections.max(sortedPlayers, new java.util.Comparator<Player>() {
+                        @Override
+                        public int compare(Player o1, Player o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+
+            sidePotsAmount.add(sidePot.clear());
+
+            // Firstly, add first guy in the sorted list because he has 0 money for sure
+            tiedPlayers.add(winner);
+
+            // Next, find tied players.
+            for (Player player : sortedPlayers)
+                if (winner.compareTo(player) == 0 && !winner.equals(player))
+                    tiedPlayers.add(player);
+
+            // Lastly remove players who dont have money
+            sortedPlayers.remove(0);
+            while (sortedPlayers.size() > 0 && sortedPlayers.get(0).getMoney() == 0)
+                sortedPlayers.remove(0);
+
+            sidePotWinners.add(tiedPlayers);
         }
-        commHand.addCards(new Card(40));
 
-        handStrength = p1.handStrengthPredict(100000);
-
-        for(int i = 0; i < handStrength.length; i++)
-        {
-            System.out.print(PokerHand.values()[i] + " :");
-            System.out.println(handStrength[i]);
+        // Pay money
+        for (int i = 0; i < sidePotWinners.size(); i++) {
+            for (Player player : sidePotWinners.get(i))
+                player.takesMoney(sidePotsAmount.get(i) / sidePotWinners.get(i).size());
         }
+
+
     }
-
-
 }

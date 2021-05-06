@@ -187,7 +187,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
-                    return PokerHand.ROYAL_STRAIGHT_FLUSH;
+                    return PokerHand.ROYAL_FLUSH;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -262,7 +262,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.get(0).getNumber() == 0)
                 {
-                    return PokerHand.ACE_HIGH_STRAIGHT;
+                    return PokerHand.ACE_STRAIGHT;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -315,7 +315,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 consecutive++;
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.contains(new Card(0, hand.get(i).getSuit())))
                 {
-                    return PokerHand.ROYAL_STRAIGHT_FLUSH;
+                    return PokerHand.ROYAL_FLUSH;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -485,7 +485,7 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 if(consecutive >= EVAL_SIZE -2 && hand.get(i).getNumber() == 12 && hand.get(0).getNumber() == 0)
                 {
                     kickers.add(0);
-                    return PokerHand.ACE_HIGH_STRAIGHT;
+                    return PokerHand.ACE_STRAIGHT;
                 }
                 if(consecutive >= EVAL_SIZE - 1)
                 {
@@ -684,12 +684,12 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
     public void testHands()
     {
         Map<PokerHand, Integer> ans7 = new HashMap<>();
-        ans7.put(PokerHand.ROYAL_STRAIGHT_FLUSH, 4324);
+        ans7.put(PokerHand.ROYAL_FLUSH, 4324);
         ans7.put(PokerHand.STRAIGHT_FLUSH, 37260);
         ans7.put(PokerHand.FOUR_OF_A_KIND, 224848);
         ans7.put(PokerHand.FULL_HOUSE, 3473184);
         ans7.put(PokerHand.FLUSH, 4047644);
-        ans7.put(PokerHand.ACE_HIGH_STRAIGHT, 747980);
+        ans7.put(PokerHand.ACE_STRAIGHT, 747980);
         ans7.put(PokerHand.STRAIGHT, 5432040);
         ans7.put(PokerHand.THREE_OF_A_KIND, 6461620);
         ans7.put(PokerHand.TWO_PAIR, 31433400);

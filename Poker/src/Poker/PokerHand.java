@@ -1,12 +1,12 @@
 package Poker;
 
 public enum PokerHand {
-    ROYAL_STRAIGHT_FLUSH(0),
+    ROYAL_FLUSH(0),
     STRAIGHT_FLUSH(1),
     FOUR_OF_A_KIND(2),
     FULL_HOUSE(3),
     FLUSH(4),
-    ACE_HIGH_STRAIGHT(5),
+    ACE_STRAIGHT(5),
     STRAIGHT(6),
     THREE_OF_A_KIND(7),
     TWO_PAIR(8),

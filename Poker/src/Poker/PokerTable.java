@@ -7,7 +7,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
+import java.util.Arrays;
 
 public class PokerTable extends JPanel {
     static final int PADDING = 20;
@@ -314,7 +316,7 @@ class PlayerInfoPanel extends JPanel
 
     public PlayerInfoPanel(Player player) {
         this.player = player;
-        setPreferredSize(new Dimension(340, 300));
+        setPreferredSize(new Dimension(400, 360));
         setBackground(PokerTable.PRIMARY_COLOR);
     }
 
@@ -322,24 +324,38 @@ class PlayerInfoPanel extends JPanel
     {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        float[] statsHand = player.handStrengthPredict(trials);
+        double[] statsHand = player.handStrengthPrediction(trials);
+        double  max = Arrays.stream(statsHand).max().getAsDouble();
         PokerHand[] handTypes = PokerHand.values();
+        g2d.setColor(Color.WHITE);
+
+        g2d.setFont(new Font("TimesRoman", Font.BOLD, 18));
+        float winRate = player.winRatePrediction(Game.nPlayers, 10000);
+        g2d.drawString(String.format("Win Rate : %.2f", winRate), 40, 40);
 
         g2d.setFont(new Font("TimesRoman", Font.PLAIN, 14));
-        g2d.setColor(Color.WHITE);
+
         for(int i = 0; i < statsHand.length; i++)
         {
-            g2d.drawString(String.format("%s", handTypes[i].toString()), 50, 50 + 20*i);
-            g2d.drawString(String.format("%.2f%%", statsHand[i]), 250, 50 + 20*i);
+            g2d.setColor(Color.WHITE);
+            g2d.drawString(String.format("%.0f%%", statsHand[i]), 50, 80 + 20*i);
+            g2d.drawString(String.format("%s", handTypes[i].toString()), 230, 80 + 20*i);
+            g2d.setColor(new Color(180, 180, 180));
+            g2d.fillRoundRect(110, 67 + 20*i, 100, 16, 10, 10);
+            g2d.setColor(Color.getHSBColor((float)(statsHand[i]/max*0.4), 0.7f, 1f));
+            g2d.fillRoundRect(110 + 100 - (int)(statsHand[i]/max*100), 67 + 20*i, (int)(statsHand[i]/max*100), 16, 10, 10);
         }
-        g2d.drawRoundRect(20, 20, 300, 260, 30, 30);
+        g2d.setColor(Color.WHITE);
+        g2d.drawRoundRect(20, 50, 350, 260, 30, 30);
+
+
     }
 
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(360, 340);
+        frame.setSize(410, 400);
         Hand commHand1 = new Hand(new int[]{});
         Player p1 = new Player(commHand1);
         p1.takesMoney(2000);

@@ -66,7 +66,7 @@ public class Game implements ActionListener {
     {
         JFrame frame = new JFrame("Simple game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(780, 750);
+        frame.setSize(780, 800);
         frame.setLayout(new BorderLayout());
 
         controller = new Controller(this);
@@ -321,17 +321,6 @@ public class Game implements ActionListener {
     public void preFlop() {
         deck.shuffle();
 
-//        deck.add(new Card(34, 0, 0));
-//        deck.add(new Card(7, 0, 0));
-//        deck.add(new Card(18, 0, 0));
-//        deck.add(new Card(28, 0, 0));
-//        deck.add(new Card(49, 0, 0));
-//        deck.add(new Card(1, 0, 0));
-//        deck.add(new Card(13, 0, 0));
-//        deck.add(new Card(17, 0, 0));
-//        deck.add(new Card(27, 0, 0));
-//        deck.add(new Card(8, 0, 0));
-//        deck.add(new Card(5, 0, 0));
         // Drawing cards
         for(int i = 0; i < HAND_SIZE; i++)
         {
@@ -340,7 +329,6 @@ public class Game implements ActionListener {
                 player.pickCards(deck.pop());
             }
         }
-
         stageInit();
 
         // SB BB, too complicated
@@ -364,8 +352,7 @@ public class Game implements ActionListener {
         }
         player.setStatus(Action.BB);
 
-        // Set Call button not bet because callTotal is not 0
-
+        playerInfoPanel.repaint();
         betting();
     }
 
