@@ -66,6 +66,120 @@ public class Player implements Comparable<Player>{
         hiddenHand = new Hand(x, y + PokerTable.PADDING * 3, Game.HAND_SIZE, "Blue");
     }
 
+    public void rename(String name)
+    {
+        this.name = name;
+    }
+
+    public PokerHand getStrength()
+    {
+        return strength;
+    }
+
+    public List<Integer> getKickers()
+    {
+        return kickers;
+    }
+
+    public String name()
+    {
+        return name;
+    }
+
+    public int getMoney()
+    {
+        return money.getAmount();
+    }
+
+    public int getBetTotal()
+    {
+        return bet.getAmount();
+    }
+
+    public boolean isWait() {
+        return wait;
+    }
+
+    public void setWait(boolean wait)
+    {
+        this.wait = wait;
+    }
+
+    public boolean isControl()
+    {
+        return control;
+    }
+
+    public void showdown()
+    {
+        showdown = true;
+    }
+
+    public void turnOnWait() {
+        wait = true;
+    }
+
+    public void clearBet()
+    {
+        bet.setAmount(0);
+    }
+
+    public void clearStatus()
+    {
+        status = Action.WAIT;
+    }
+
+    public void setStatus(Action action) {
+        status = action;
+    }
+
+    public void takesMoney(int amount)
+    {
+        money.add(amount);
+    }
+
+    public int givesMoney(int amount)
+    {
+        return money.subtract(amount);
+    }
+
+    public void pickCard(Card card)
+    {
+        hand.addCard(card);
+        evalHandAccuracy();
+    }
+
+    public void pickCards(int[] cards)
+    {
+        for (int card : cards) {
+            hand.addCard(new Card(card));
+        }
+        evalHandAccuracy();
+    }
+
+    public void pickCards(Card... cards)
+    {
+        for (Card card : cards) {
+            hand.addCard(card);
+        }
+        evalHandAccuracy();
+    }
+
+    public Action getStatus()
+    {
+        return status;
+    }
+
+    public int getPayTotal()
+    {
+        return startMoney.getAmount() - money.getAmount();
+    }
+
+    public int givePayTotal(int amount)
+    {
+        return startMoney.subtract(amount);
+    }
+
     public void evalHandAccuracy()
     {
         ArrayList<Card> cards = new ArrayList<>(communityCards.getCards());
@@ -182,120 +296,18 @@ public class Player implements Comparable<Player>{
         return winCount/(float)nTrials;
     }
 
-    public void rename(String name)
-    {
-        this.name = name;
-    }
-
-    public PokerHand getStrength()
-    {
-        return strength;
-    }
-
-    public List<Integer> getKickers()
-    {
-        return kickers;
-    }
-
-
-    public String name()
-    {
-        return name;
-    }
-
-    public int getMoney()
-    {
-        return money.getAmount();
-    }
-
-    public int getBetTotal()
-    {
-        return bet.getAmount();
-    }
-
-    public boolean isWait() {
-        return wait;
-    }
-
-    public void setWait(boolean wait)
-    {
-        this.wait = wait;
-    }
-
-    public boolean isControl()
-    {
-        return control;
-    }
-
-    public void showdown()
-    {
-        showdown = true;
-    }
-
-    public void turnOnWait() {
-        wait = true;
-    }
-
-    public void clearBet()
-    {
-        bet.setAmount(0);
-    }
-
-    public void clearStatus()
-    {
-        status = Action.WAIT;
-    }
-
-    public void setStatus(Action action) {
-        status = action;
-    }
-
-    public void takesMoney(int amount)
-    {
-        money.add(amount);
-    }
-
-    public int givesMoney(int amount)
-    {
-        return money.subtract(amount);
-    }
-
-    public void pickCard(Card card)
-    {
-        hand.addCard(card);
-        evalHandAccuracy();
-    }
-
-    public void pickCards(int[] cards)
-    {
-        for (int card : cards) {
-            hand.addCard(new Card(card));
-        }
-        evalHandAccuracy();
-    }
-
-    public void pickCards(Card... cards)
-    {
-        for (Card card : cards) {
-            hand.addCard(card);
-        }
-        evalHandAccuracy();
-    }
-
-    public Action getStatus()
-    {
-        return status;
-    }
 
     public int AiCall(int callTotal, int SBValue, Money payDest)
     {
         int pay = 0;
 
+        if(status == Action.ALL_IN)
+            return callTotal;
         // Bet
         if(callTotal == 0)
         {
             // Pay SB
-            if(SBValue <= money.getAmount())
+            if(SBValue < money.getAmount())
             {
                 pay = SBValue;
                 bet.add(money.subtract(pay));
@@ -304,13 +316,13 @@ public class Player implements Comparable<Player>{
             // Fold
             else
             {
-                status = Action.FOLD;
+                status = Action.ALL_IN;
                 return callTotal;
             }
         }
         else{
             // Difference between callTotal and bet is what you need to pay to move on
-            if (callTotal - bet.getAmount() <= money.getAmount())
+            if (callTotal - bet.getAmount() < money.getAmount())
             {
                 pay = callTotal - bet.getAmount();
                 bet.add(money.subtract(pay));
@@ -318,9 +330,11 @@ public class Player implements Comparable<Player>{
             }
             else
             {
-                pay = bet.getAmount();
+                pay = money.getAmount();
                 status = Action.ALL_IN;
                 bet.add(money.clear());
+                payDest.add(pay);
+                return callTotal;
             }
         }
         payDest.add(pay);
@@ -384,6 +398,7 @@ public class Player implements Comparable<Player>{
     {
         kickers =  new ArrayList<>();
         bet.clear();
+        startMoney.setAmount(money.getAmount());
         if(money.getAmount() < smallBlind)
             status = Action.FOLD;
         else
@@ -447,17 +462,23 @@ public class Player implements Comparable<Player>{
         Hand commHand = new Hand(new int[]{2, 6, 20, 35, 40});
         Hand commHand1 = new Hand(new int[]{});
         Player p1 = new Player(commHand1);
-        p1.takesMoney(2000);
+        p1.money.setAmount(2000);
         p1.pickCards(new Card(0), new Card(13)); // Two pair // Pair
+        p1.startMoney.setAmount(4000);
         Player p2 = new Player(commHand);
-        p2.takesMoney(1500);
+        p2.money.setAmount(1500);
         p2.pickCards(new Card(22), new Card(25)); //Pair
+        p2.startMoney.setAmount(3500);
         Player p3 = new Player(commHand);
-        p3.takesMoney(3500);
+        p3.money.setAmount(2500);
         p3.pickCards(new Card(18), new Card(26)); // High card
+        p3.startMoney.setAmount(5500);
+        p3.status = Action.FOLD;
         Player p4 = new Player(commHand);
-        p4.takesMoney(1000);
+        p4.money.setAmount(0);
         p4.pickCards(new Card(14), new Card(1)); // Three card
+        p4.startMoney.setAmount(1000);
+
 
 
         List<Player> players = new ArrayList<>();
@@ -468,26 +489,33 @@ public class Player implements Comparable<Player>{
 
         System.out.println(players);
 
-
+        Money mainPot = new Money();
         Money sidePot = new Money();
         List<Player> sortedPlayers = new ArrayList<>(players);
-        // Remove folds
-        for (int i = 0; i < sortedPlayers.size(); i++)
-            if (sortedPlayers.get(i).getStatus() == Action.FOLD)
-                sortedPlayers.remove(i);
 
-        Collections.sort(sortedPlayers, Comparator.comparingInt(Player::getMoney));
+        // Remove folds and add money to main pot
+        for (int i = 0; i < sortedPlayers.size(); i++)
+        {
+            if (sortedPlayers.get(i).getStatus() == Action.FOLD)
+            {
+                Player removedPlayer = sortedPlayers.remove(i);
+                mainPot.add(removedPlayer.getPayTotal());
+            }
+        }
+
+        // Sort players by money
+        Collections.sort(sortedPlayers, Comparator.comparingInt(Player::getPayTotal));
 
         List<List<Player>> sidePotWinners = new ArrayList<>();
         List<Integer> sidePotsAmount = new ArrayList<>();
 
-        while (sortedPlayers.size() > 1) {
-            int amount = sortedPlayers.get(0).getMoney();
+        while (sortedPlayers.size() > 0) {
+            int amount = sortedPlayers.get(0).getPayTotal();
 
             // Add money to side pot
             // Take money from all players in sorted list
             for (Player player : sortedPlayers) {
-                sidePot.add(player.givesMoney(amount));
+                sidePot.add(player.givePayTotal(amount));
             }
 
 
@@ -513,18 +541,23 @@ public class Player implements Comparable<Player>{
 
             // Lastly remove players who dont have money
             sortedPlayers.remove(0);
-            while (sortedPlayers.size() > 0 && sortedPlayers.get(0).getMoney() == 0)
+            while (sortedPlayers.size() > 0 && sortedPlayers.get(0).getPayTotal() == 0)
                 sortedPlayers.remove(0);
 
             sidePotWinners.add(tiedPlayers);
         }
 
         // Pay money
+        for (Player player : sidePotWinners.get(0))
+            player.takesMoney(mainPot.getAmount() / sidePotWinners.get(0).size());
         for (int i = 0; i < sidePotWinners.size(); i++) {
             for (Player player : sidePotWinners.get(i))
                 player.takesMoney(sidePotsAmount.get(i) / sidePotWinners.get(i).size());
         }
 
-
+        for(int i = 0; i < 4; i++)
+        {
+            System.out.println(players.get(i) + ": " + players.get(i).getMoney());
+        }
     }
 }
