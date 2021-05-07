@@ -58,15 +58,6 @@ public class Player implements Comparable<Player>{
         hiddenHand = new Hand(x, y + PokerTable.PADDING * 3, Game.HAND_SIZE, "Blue");
     }
 
-    public Player(Hand commCards, int money, int[] cards, int x, int y, boolean control)
-    {
-        this(commCards, money, control);
-        this.x = x;
-        this.y = y;
-        hand = new Hand(cards, x, y + PokerTable.PADDING * 3);
-        hiddenHand = new Hand(x, y + PokerTable.PADDING * 3, Game.HAND_SIZE, "Blue");
-    }
-
     public void rename(String name)
     {
         this.name = name;

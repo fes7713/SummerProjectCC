@@ -21,13 +21,6 @@ public class Deck {
         }
     }
 
-
-
-    public int size()
-    {
-        return deck.size();
-    }
-
     public void shuffle()
     {
         Collections.shuffle(deck);

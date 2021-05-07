@@ -30,7 +30,7 @@ public class Game implements ActionListener {
     private int currentPlayerIndex, initialPlayerIndex;
     private Integer[] win;
     private boolean wait;
-    private boolean auto = false;
+    private final boolean auto = false;
     private boolean end = false;
 
     public Game()
@@ -154,8 +154,6 @@ public class Game implements ActionListener {
 
     public void paint(Graphics2D g)
     {
-//        if(!end)
-//            return;
         g.drawString(stages[stageCount], 20, PokerTable.PADDING);
         try{
             communityCards.paint(g);
@@ -171,7 +169,6 @@ public class Game implements ActionListener {
                 Card.CARD_HEIGHT + PokerTable.PADDING,
                 30,
                 30);
-
 
         // Player Coloring
         if(win == null)
@@ -198,7 +195,6 @@ public class Game implements ActionListener {
         g.setColor(Color.white);
         for(Player player :players)
             player.paint(g);
-
     }
 
     public void betting() {
@@ -207,7 +203,6 @@ public class Game implements ActionListener {
         currentPlayerIndex = initialPlayerIndex;
 
         Player player;
-
 
         // Small bet action
         if(players.get(currentPlayerIndex).getStatus() == Action.SB)
@@ -279,14 +274,9 @@ public class Game implements ActionListener {
             currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
         }
         repaint();
-
     }
 
-
     private void userInput(Player player) {
-        // Auto AI Calc later
-
-
         Action action = player.getStatus();
         if(action == Action.FOLD || action == Action.ALL_IN)
             return;
@@ -390,7 +380,6 @@ public class Game implements ActionListener {
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
         playerInfoPanel.repaint();
         betting();
-
     }
 
     public void turn() {
@@ -440,7 +429,6 @@ public class Game implements ActionListener {
                 sidePot.add(player.givePayTotal(amount));
             }
 
-
             List<Player> tiedPlayers = new ArrayList<>();
             // Find strongest one and put him in list.
             Player winner =
@@ -487,7 +475,6 @@ public class Game implements ActionListener {
                     win[i] = j;
             }
         }
-
         return win;
     }
 
@@ -532,7 +519,6 @@ public class Game implements ActionListener {
             System.out.println(player);
         }
 
-
         if(auto)
             controller.doCall();
         while(wait)
@@ -563,9 +549,6 @@ public class Game implements ActionListener {
         for(Player player : players)
             deck.addAll(player.reset(smallBlind.getAmount()));
         deck.addAll(communityCards.reset());
-//        System.out.println(deck.size());
-
-//        smallBlind,
         win = null;
         stageCount = 0;
         callTotal.clear();
@@ -600,41 +583,25 @@ public class Game implements ActionListener {
             if(players.get(currentPlayerIndex).getStatus() != Action.BB && players.get(currentPlayerIndex).getStatus() != Action.SB)
                 return;
         String command = e.getActionCommand();
-        int pay = -2;
         switch(command)
         {
-            case "Fold" -> {
-                players.get(currentPlayerIndex).AiFold();
-                return;
-            }
+            case "Fold" -> players.get(currentPlayerIndex).AiFold();
 
-            case "Check" -> {
-                players.get(currentPlayerIndex).AiCheck(callTotal);
-                return;
-            }
+            case "Check" -> players.get(currentPlayerIndex).AiCheck(callTotal);
 
             case "Bet" -> {
                 if(controller.getBetMoney() <= smallBlind.getAmount())
                     players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
                 else
                     players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
-                return;
             }
-            case "Call" -> {
-                players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
-                return;
-            }
-            case "Raise" -> {
-                players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
-                return;
-            }
+            case "Call" -> players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
 
-            case "All-In" -> {
-                players.get(currentPlayerIndex).AiAllIn(callTotal, pot);
-                return;
-            }
+            case "Raise" -> players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
+
+            case "All-In" -> players.get(currentPlayerIndex).AiAllIn(callTotal, pot);
+
         }
-
         repaint();
     }
 

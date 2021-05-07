@@ -7,7 +7,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
 import java.text.NumberFormat;
 import java.util.Arrays;
 
@@ -28,7 +27,6 @@ public class PokerTable extends JPanel {
     public PokerTable(Game g)
     {
         game = g;
-
         setBackground(PRIMARY_COLOR);
         setPreferredSize(new Dimension(WIDTH,HEIGHT));
     }
@@ -210,13 +208,6 @@ class Controller extends JPanel implements ActionListener, ChangeListener
 
     public void doCall()
     {
-        callButton.doClick();
-    }
-
-    public void doRaise(int raise)
-    {
-        money.setAmount(raise);
-        updatedMoney();
         callButton.doClick();
     }
 

@@ -16,12 +16,6 @@ public class Money implements Comparable<Money>{
         maximum = null;
     }
 
-    public Money(Money amount)
-    {
-        this.money = amount.getAmount();
-        maximum = null;
-    }
-
     public int getAmount()
     {
         return money;
@@ -43,26 +37,12 @@ public class Money implements Comparable<Money>{
             money = (int)amount;
     }
 
-    public void setMaximum(int max)
-    {
-        maximum = max;
-    }
-
     public void add(int amount)
     {
         if(maximum != null && money + amount > maximum)
             money = maximum;
         else
             money += amount;
-    }
-
-    public void add(Money bet)
-    {
-        if(maximum != null && money + bet.getAmount() > maximum)
-            money = maximum;
-        else
-            money += bet.getAmount();
-
     }
 
     public int subtract(int amount)
@@ -76,27 +56,11 @@ public class Money implements Comparable<Money>{
         }
     }
 
-    public int subtract(Money bet)
-    {
-        if(bet.getAmount() > money)
-            return clear();
-        else
-        {
-            money -= bet.getAmount();
-            return bet.getAmount();
-        }
-    }
-
     public int clear()
     {
         int temp = money;
         money = 0;
         return temp;
-    }
-
-    public void takePot(Money pot)
-    {
-        add(pot.clear());
     }
 
     public String toString()

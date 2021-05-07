@@ -15,7 +15,7 @@ public enum PokerHand {
 
     private int id;
 
-    private PokerHand(int id) {
+    PokerHand(int id) {
         this.id = id;
     }
 
