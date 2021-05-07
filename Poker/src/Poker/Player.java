@@ -5,7 +5,8 @@ import java.util.*;
 import java.util.List;
 
 public class Player implements Comparable<Player>{
-    private Hand hand, communityCards;
+    private Hand hand;
+    private final Hand communityCards;
     private Hand hiddenHand;
     private List<Integer> kickers;
     private Money money, startMoney, bet;
@@ -215,7 +216,14 @@ public class Player implements Comparable<Player>{
             for(int j = 0; j < Game.COMMUNITY_CARDS_SIZE - communityCards.size(); j++)
                 cardIds[handSize + j] = deck[j];
             Hand h = new Hand(cardIds);
-            handStrength[h.evalHand().getId()]++;
+            try{
+                handStrength[h.evalHand().getId()]++;
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+
         }
 
         for(int i = 0; i < handStrength.length; i++)
@@ -275,7 +283,15 @@ public class Player implements Comparable<Player>{
             int commCardNeed = Game.COMMUNITY_CARDS_SIZE - communityCards.size();
             for(int j = 0; j < commCardNeed; j++)
             {
-                playerCards[Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
+                try{
+                    int num = deck[j + deckShift];
+                    playerCards[Game.HAND_SIZE + commSize + j] = num;
+                }
+                catch (Exception e)
+                {
+                    System.out.println("j : " + j);
+                    e.printStackTrace();
+                }
                 for(int k = 0; k < nPlayers - 1; k++)
                     botsCards[k][Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
             }
@@ -297,101 +313,204 @@ public class Player implements Comparable<Player>{
     }
 
 
-    public int AiCall(int callTotal, int SBValue, Money payDest)
+    public void AiCall(int SBValue, Money callTotal, Money payDest)
     {
         int pay = 0;
 
+        if(status == Action.FOLD) {
+            System.out.println("Call : Fold");
+            return;
+        }
+
         if(status == Action.ALL_IN)
-            return callTotal;
+        {
+            System.out.println("Cannot call during all in status");
+            return;
+        }
+
         // Bet
-        if(callTotal == 0)
+        if(callTotal.getAmount() == 0)
         {
             // Pay SB
             if(SBValue < money.getAmount())
             {
                 pay = SBValue;
                 bet.add(money.subtract(pay));
-                status = Action.CALL;
+                status = Action.BET;
             }
-            // Fold
+            // All in
             else
             {
-                status = Action.ALL_IN;
-                return callTotal;
+                AiAllIn(callTotal, payDest);
+                return;
             }
         }
         else{
             // Difference between callTotal and bet is what you need to pay to move on
-            if (callTotal - bet.getAmount() < money.getAmount())
+            if (callTotal.getAmount() - bet.getAmount() < money.getAmount())
             {
-                pay = callTotal - bet.getAmount();
+                pay = callTotal.getAmount() - bet.getAmount();
                 bet.add(money.subtract(pay));
                 status = Action.CALL;
             }
             else
             {
-                pay = money.getAmount();
-                status = Action.ALL_IN;
-                bet.add(money.clear());
-                payDest.add(pay);
-                return callTotal;
+                AiAllIn(callTotal, payDest);
+                return;
             }
         }
+        wait = false;
         payDest.add(pay);
-        return bet.getAmount();
+        callTotal.setAmount(bet.getAmount());
     }
 
-    // Return pay amount to the pot
-    public int proceedActionCommand(int callTotal, int betAmount)
+    // Dont update call total like AiCall
+    public void AiFold()
     {
-//        wait = false;
-        if(status == Action.FOLD || status == Action.ALL_IN)
-            return 0;
-        if(betAmount == -2)
-            return 0;
-        else if(betAmount == -1)
-        {
-            status = Action.FOLD;
-            return callTotal;
+        status = Action.FOLD;
+        wait = false;
+    }
+
+    public boolean AiCheck(Money callTotal)
+    {
+        if(status == Action.FOLD || status == Action.ALL_IN) {
+            System.out.println("Check: Error All in (Fold, Allin)");
+            return false;
         }
-        else if(betAmount == 0)
+        if(callTotal.getAmount() == 0)
         {
             status = Action.CHECK;
+            wait = false;
+            return true;
         }
-        else if(callTotal == 0)
-        {
-            // Improve maybe??
-            if(status == Action.SB) {
-            }
-            else if(betAmount == money.getAmount())
-                status = Action.ALL_IN;
-            else
-                status = Action.BET;
-            bet.add(money.subtract(betAmount));
+        System.out.println("Check option is not available");
+        return false;
+    }
+
+    public void AiAllIn(Money callTotal, Money payDest)
+    {
+        int pay = money.getAmount();;
+
+        if(status == Action.FOLD || status == Action.ALL_IN) {
+            System.out.println("All in: Error All in (Fold, Allin)");
+            return;
         }
-        else if(betAmount + bet.getAmount() == callTotal)
+
+        if(pay + bet.getAmount() == callTotal.getAmount())
         {
-            System.out.println(bet.getAmount());
             status = Action.CALL;
-            bet.add(money.subtract(betAmount));
+            bet.add(money.subtract(pay));
         }
-        else if(betAmount == money.getAmount())
+        // May need fix
+        else if(callTotal.getAmount() == 0)
         {
             status = Action.ALL_IN;
-            bet.add(money.subtract(betAmount));
+            bet.add(money.subtract(pay));
         }
         else
         {
-            // Improve maybe??
-            if(status == Action.BB) {
-            }
-            else
-                status = Action.RAISE;
-            bet.add(money.subtract(betAmount));
+            status = Action.ALL_IN;
+            bet.add(money.subtract(pay));
         }
-        return bet.getAmount();
+
+        wait = false;
+        payDest.add(pay);
+        // Update callTotal if bet amount was more than callTotal
+        if (callTotal.getAmount() <= bet.getAmount())
+            callTotal.setAmount(bet.getAmount());
+
     }
 
+    public void AiRaise(int raiseAmount, int SBValue, Money callTotal, Money payDest)
+    {
+        int pay = raiseAmount;
+
+        if(status == Action.FOLD || status == Action.ALL_IN)
+            return;
+        if(callTotal.getAmount() == 0)
+        {
+            // First bet, bet action
+            if(raiseAmount >= money.getAmount())
+            {
+                AiAllIn(callTotal, payDest);
+                return;
+            }
+            else
+            {
+                status = Action.BET;
+                bet.add(money.subtract(pay));
+            }
+        }
+        else if(callTotal.getAmount() < raiseAmount + bet.getAmount())
+        {
+            status = Action.RAISE;
+            bet.add(money.subtract(pay));
+        }
+        else if(raiseAmount >= money.getAmount())
+        {
+            System.out.println("Over budget, went all in option");
+            AiAllIn(callTotal, payDest);
+            return;
+        }
+        else
+        {
+            // May not even reach here
+            System.out.println("Ai Raise Error : Went call option");
+            AiCall(SBValue, callTotal, payDest);
+            return;
+        }
+
+        wait = false;
+        payDest.add(pay);
+        callTotal.setAmount(bet.getAmount());
+    }
+
+    // Update
+    public void AiSB(int SBValue, Money callTotal, Money payDest)
+    {
+        if(status != Action.SB || callTotal.getAmount() != 0)
+        {
+            System.out.println("SB bet error");
+            return;
+        }
+
+        int pay = SBValue;
+
+        if(pay > money.getAmount())
+        {
+            System.out.println("SB is over budget : Went fold");
+            AiFold();
+            return;
+        }
+
+        wait = true;
+        bet.add(money.subtract(pay));
+        callTotal.setAmount(SBValue);
+        payDest.add(pay);
+    }
+
+    public void AiBB(int SBValue, Money callTotal, Money payDest)
+    {
+        if(status != Action.BB || callTotal.getAmount() != SBValue)
+        {
+            System.out.println("BB bet error");
+            return;
+        }
+
+        int pay = SBValue * 2;
+
+        if(pay > money.getAmount())
+        {
+            System.out.println("BB is over budget : Went fold");
+            AiFold();
+            return;
+        }
+
+        wait = true;
+        bet.add(money.subtract(pay));
+        callTotal.setAmount(SBValue*2);
+        payDest.add(pay);
+    }
 
     // Return hand cards
     public List<Card> reset(int smallBlind)

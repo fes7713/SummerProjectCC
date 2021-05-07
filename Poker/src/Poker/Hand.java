@@ -220,7 +220,13 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
         int[] freqFreq = new int[Card.MAX_SUIT + 1];
         for(int i = 0; i < Card.MAX_NUMBER; i++)
         {
-            freqFreq[numFreq[i]]++;
+            try{
+                freqFreq[numFreq[i]]++;
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         }
 
 // FOUR_OF_A_KIND

@@ -157,7 +157,14 @@ public class Game implements ActionListener {
 //        if(!end)
 //            return;
         g.drawString(stages[stageCount], 20, PokerTable.PADDING);
-        communityCards.paint(g);
+        try{
+            communityCards.paint(g);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
         g.drawRoundRect(communityCards.getX() - PokerTable.PADDING / 2,
                 communityCards.getY() - PokerTable.PADDING / 2,
                 COMMUNITY_CARDS_SIZE * Card.CARD_WIDTH + PokerTable.PADDING,
@@ -205,7 +212,7 @@ public class Game implements ActionListener {
         // Small bet action
         if(players.get(currentPlayerIndex).getStatus() == Action.SB)
         {
-            controller.doRaise(smallBlind.getAmount());
+            players.get(currentPlayerIndex).AiSB(smallBlind.getAmount(), callTotal, pot);
             callCount++;
             players.get(currentPlayerIndex).turnOnWait();
             currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
@@ -221,8 +228,7 @@ public class Game implements ActionListener {
             {
                 // Maybe we dont need this line
                 controller.initCallButton();
-                player.setStatus(Action.BB);
-                controller.doRaise(smallBlind.getAmount() * 2);
+                player.AiBB(smallBlind.getAmount(), callTotal, pot);
                 callCount = 1;
                 player.turnOnWait();
                 currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
@@ -231,7 +237,21 @@ public class Game implements ActionListener {
             if(player.isControl())
                 userInput(player);
             else
-                callTotal.setAmount(player.AiCall(callTotal.getAmount(), smallBlind.getAmount(), pot));
+            {
+                if(action == Action.ALL_IN || action == Action.FOLD)
+                {
+                    // Do nothing
+                }
+                else if(callTotal.getAmount() == smallBlind.getAmount() * 2)
+                    player.AiRaise(smallBlind.getAmount()*3, smallBlind.getAmount(), callTotal, pot);
+                else
+                    player.AiCall(smallBlind.getAmount(), callTotal, pot);
+//                if(!player.AiCheck(callTotal.getAmount()));
+//                    callTotal.setAmount(player.AiCall(callTotal.getAmount(), smallBlind.getAmount(), pot));
+
+//                callTotal.setAmount(player.AiAllIn(callTotal.getAmount(), pot));
+            }
+
 
             action = player.getStatus();
             // User input will reject fold and all in inside.
@@ -472,10 +492,7 @@ public class Game implements ActionListener {
     }
 
     public boolean gameEnd(){
-//        System.out.println("End");
-
         // ** Check who is winner
-
         Player wonPlayer = null;
         ArrayList<Integer> winPlayerList = new ArrayList<>(nPlayers);
         for(int i = 0, compNum; i < nPlayers; i++)
@@ -506,7 +523,6 @@ public class Game implements ActionListener {
         }
 
         win = winPlayerList.toArray(new Integer[winPlayerList.size()]);
-
         wait = true;
 
         // show cards
@@ -515,11 +531,6 @@ public class Game implements ActionListener {
             player.showdown();
             System.out.println(player);
         }
-
-
-
-
-        System.out.println(communityCards);
 
 
         if(auto)
@@ -592,52 +603,37 @@ public class Game implements ActionListener {
         int pay = -2;
         switch(command)
         {
-            case "Fold" -> pay = -1;
+            case "Fold" -> {
+                players.get(currentPlayerIndex).AiFold();
+                return;
+            }
 
-            case "Check" -> pay = getCallTotal() == 0 ? 0:-2;
+            case "Check" -> {
+                players.get(currentPlayerIndex).AiCheck(callTotal);
+                return;
+            }
 
             case "Bet" -> {
-                int betInputted = controller.getBetMoney();
-                if(betInputted < smallBlind.getAmount())
-                {
-                    if(betInputted == getCurrentPlayerMoney())
-                        pay = getCurrentPlayerMoney();
-                    pay = getCurrentPlayerMoney();
-                }
+                if(controller.getBetMoney() <= smallBlind.getAmount())
+                    players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
                 else
-                    pay = betInputted;
+                    players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
+                return;
             }
             case "Call" -> {
-                // bet amount is within your money, then bet
-                if (callTotal.getAmount() - getCurrentPlayerBetTotal() < getCurrentPlayerMoney())
-                    pay = callTotal.getAmount() - getCurrentPlayerBetTotal();
-                    // if not all in
-                else
-                {
-                    pay = getCurrentPlayerMoney();
-                }
+                players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
+                return;
             }
-            case "Raise" -> pay = controller.getBetMoney() - getCurrentPlayerBetTotal();
+            case "Raise" -> {
+                players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
+                return;
+            }
 
             case "All-In" -> {
-                pay = getCurrentPlayerMoney();
+                players.get(currentPlayerIndex).AiAllIn(callTotal, pot);
+                return;
             }
         }
-//        System.out.println(command + " 2");
-//        System.out.println(pay);
-
-        callTotal.setAmount(players.get(currentPlayerIndex).proceedActionCommand(getCallTotal(), pay));
-
-        if(callTotal.getAmount() == -1)
-            pay = 0;
-        // if not fold
-        if(pay >= 0)
-        {
-            pot.add(pay);
-            players.get(currentPlayerIndex).setWait(false);
-        }
-        else
-            players.get(currentPlayerIndex).setWait(false);
 
         repaint();
     }
@@ -648,7 +644,5 @@ public class Game implements ActionListener {
         while(true)
             game.repaint();
     }
-
-
 }
 

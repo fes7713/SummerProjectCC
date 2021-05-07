@@ -310,6 +310,10 @@ class GameInfoPanel extends JPanel
 
 class PlayerInfoPanel extends JPanel
 {
+    static final int PADDING = 22;
+    static final int BAR_LENGTH = 130;
+    static final int BAR_HEIGHT = 16;
+    static final int ARC_RADIUS = 10;
     private Player player;
 
     static final int trials = 10000;
@@ -338,15 +342,20 @@ class PlayerInfoPanel extends JPanel
         for(int i = 0; i < statsHand.length; i++)
         {
             g2d.setColor(Color.WHITE);
-            g2d.drawString(String.format("%.0f%%", statsHand[i]), 50, 80 + 20*i);
-            g2d.drawString(String.format("%s", handTypes[i].toString()), 230, 80 + 20*i);
+            g2d.drawString(String.format("%.0f%%", statsHand[i]), 50, 80 + PADDING*i);
+            g2d.drawString(String.format("%s", handTypes[i].toString()), 100 + BAR_LENGTH, 80 + PADDING*i);
             g2d.setColor(new Color(180, 180, 180));
-            g2d.fillRoundRect(110, 67 + 20*i, 100, 16, 10, 10);
+            g2d.fillRoundRect(90, 75 - BAR_HEIGHT / 2 + PADDING * i, BAR_LENGTH, BAR_HEIGHT, ARC_RADIUS, ARC_RADIUS);
             g2d.setColor(Color.getHSBColor((float)(statsHand[i]/max*0.4), 0.7f, 1f));
-            g2d.fillRoundRect(110 + 100 - (int)(statsHand[i]/max*100), 67 + 20*i, (int)(statsHand[i]/max*100), 16, 10, 10);
+            g2d.fillRoundRect(90 + BAR_LENGTH - (int)(statsHand[i]/max*BAR_LENGTH),
+                    75 - BAR_HEIGHT / 2 + PADDING * i,
+                    (int)(statsHand[i]/max*BAR_LENGTH), // Width
+                    BAR_HEIGHT,
+                    ARC_RADIUS,
+                    ARC_RADIUS);
         }
         g2d.setColor(Color.WHITE);
-        g2d.drawRoundRect(20, 50, 350, 260, 30, 30);
+        g2d.drawRoundRect(20, 50, 350, PADDING * 11 + PADDING, ARC_RADIUS * 3, ARC_RADIUS * 3);
 
 
     }
