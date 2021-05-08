@@ -5,7 +5,7 @@ import java.util.*;
 public class Deck {
     static final int SIZE = 52;
     Stack<Card> deck;
-
+    static Random rand = new Random(Game.SEED);
     public Deck()
     {
         deck = new Stack<>();
@@ -51,7 +51,6 @@ public class Deck {
 
     public static void shuffle(int[] deck)
     {
-        Random rand = new Random();
         for(int i = deck.length - 1; i > 0; i--){
             int j = rand.nextInt(i + 1);
             if(i != j) {

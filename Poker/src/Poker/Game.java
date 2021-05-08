@@ -12,9 +12,11 @@ import java.util.List;
 public class Game implements ActionListener {
     static final int HAND_SIZE = 2;
     static final int COMMUNITY_CARDS_SIZE = 5;
-    static final int nPlayers = 3;
+    static final int nPlayers = 5;
     static final String[] stages = {"Pre-flop", "Flop", "Turn", "River"};
     static final int mainPlayerIndex = 0;
+    static final int AI_IQ = 1000;
+    static final int SEED = 20000;
 
     private int stageCount;
     private final int INITIAL_MONEY = 10000;
@@ -26,6 +28,7 @@ public class Game implements ActionListener {
     private Controller controller;
     private GameInfoPanel gameInfoPanel;
     private PlayerInfoPanel playerInfoPanel;
+    private Recorder recorder;
     private String[] names;
     private int currentPlayerIndex, initialPlayerIndex;
     private Integer[] win;
@@ -51,10 +54,27 @@ public class Game implements ActionListener {
         players.add(0, new Player(communityCards, INITIAL_MONEY,
                 PokerTable.PADDING,
                 Card.CARD_HEIGHT + PokerTable.PADDING * 4, true));
+        players.get(0).setStrategy(Strategy.CALL_MAN);
+        players.get(1).setStrategy(Strategy.SIMPLE_RANGE_EXP);
+        players.get(2).setStrategy(Strategy.SIMPLE_RANGE_EXP);
+        players.get(3).setStrategy(Strategy.EXPECTATION);
+        players.get(4).setStrategy(Strategy.EXPECTATION);
+
         pot = new Money();
         callTotal = new Money();
         smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
+
+        recorder = new Recorder("PokerTest07.csv");
+        recorder.setActive(true);
+        // First record
+        for(Player player:players)
+            recorder.write(player.getStrategy() + ",");
+        recorder.write("\n");
+        for(Player player:players)
+            recorder.write(player.getMoney() + ",");
+        recorder.write("\n");
+
         stageCount = 0;
         win = null;
         wait = false;
@@ -148,6 +168,8 @@ public class Game implements ActionListener {
 
     public void repaint()
     {
+        if(auto)
+            return;
         pokerTable.repaint();
         gameInfoPanel.repaint();
     }
@@ -237,14 +259,15 @@ public class Game implements ActionListener {
                 {
                     // Do nothing
                 }
-                else if(callTotal.getAmount() == smallBlind.getAmount() * 2)
-                    player.AiRaise(smallBlind.getAmount()*3, smallBlind.getAmount(), callTotal, pot);
                 else
-                    player.AiCall(smallBlind.getAmount(), callTotal, pot);
-//                if(!player.AiCheck(callTotal.getAmount()));
-//                    callTotal.setAmount(player.AiCall(callTotal.getAmount(), smallBlind.getAmount(), pot));
+                {
+                    int activePlayers = nPlayers;
+                    for(Player player1 : players)
+                        if(player1.getStatus() == Action.FOLD || player1.getStatus() == Action.ALL_IN)
+                            activePlayers--;
+                    player.Ai_Strategy(smallBlind.getAmount(), activePlayers, callTotal, pot);
+                }
 
-//                callTotal.setAmount(player.AiAllIn(callTotal.getAmount(), pot));
             }
 
 
@@ -268,7 +291,9 @@ public class Game implements ActionListener {
                 // if player's money was 0, then he must be in all in call
             else
                 callCount = 1;
-            repaint();
+
+            if(!auto)
+                repaint();
 
             // Update player
             currentPlayerIndex = (currentPlayerIndex + 1) % nPlayers;
@@ -291,9 +316,6 @@ public class Game implements ActionListener {
             controller.initCallButton();
         controller.initController();
 
-
-        if(auto)
-            controller.doCall();
 
         while(true)
         {
@@ -358,19 +380,22 @@ public class Game implements ActionListener {
         }
         players.get(index).setStatus(Action.SB);
         players.get(index).setWait(true);
-
+        int SBIndex = index;
         // Search for player who has more money than BB
         index = (index+1) % nPlayers;
         Player player = players.get(index);
         while(player.getMoney() < smallBlind.getAmount() * 2)
         {
             player.setStatus(Action.FOLD);
-            index = (index+1) / nPlayers;
+            index = (index+1) % nPlayers;
             player = players.get(index);
+            if(SBIndex == index)
+                break;
         }
         player.setStatus(Action.BB);
 
-        playerInfoPanel.repaint();
+        if(!auto)
+            playerInfoPanel.repaint();
         betting();
     }
 
@@ -378,7 +403,8 @@ public class Game implements ActionListener {
         stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
-        playerInfoPanel.repaint();
+        if(!auto)
+            playerInfoPanel.repaint();
         betting();
     }
 
@@ -386,7 +412,8 @@ public class Game implements ActionListener {
         stageCount = (stageCount + 1) % 4;
         stageInit();
         communityCards.addCard(deck.pop());
-        playerInfoPanel.repaint();
+        if(!auto)
+            playerInfoPanel.repaint();
         betting();
     }
 
@@ -402,16 +429,18 @@ public class Game implements ActionListener {
     {
         Money mainPot = new Money();
         Money sidePot = new Money();
-        List<Player> sortedPlayers = new ArrayList<>(players);
+        List<Player> sortedPlayers = new ArrayList<>();
 
         // Remove folds and add money to main pot
-        for (int i = 0; i < sortedPlayers.size(); i++)
+        for (int i = 0; i < players.size(); i++)
         {
-            if (sortedPlayers.get(i).getStatus() == Action.FOLD)
+            if (players.get(i).getStatus() != Action.FOLD)
             {
-                Player removedPlayer = sortedPlayers.remove(i);
-                mainPot.add(removedPlayer.getPayTotal());
+                sortedPlayers.add(players.get(i));
+
             }
+            else
+                mainPot.add(players.get(i).getPayTotal());
         }
 
         // Sort players by money
@@ -460,6 +489,8 @@ public class Game implements ActionListener {
         // Pay money
         for (Player player : sidePotWinners.get(0))
             player.takesMoney(mainPot.getAmount() / sidePotWinners.get(0).size());
+
+
         for (int i = 0; i < sidePotWinners.size(); i++) {
             for (Player player : sidePotWinners.get(i))
                 player.takesMoney(sidePotsAmount.get(i) / sidePotWinners.get(i).size());
@@ -480,6 +511,7 @@ public class Game implements ActionListener {
 
     public boolean gameEnd(){
         // ** Check who is winner
+
         Player wonPlayer = null;
         ArrayList<Integer> winPlayerList = new ArrayList<>(nPlayers);
         for(int i = 0, compNum; i < nPlayers; i++)
@@ -516,16 +548,21 @@ public class Game implements ActionListener {
         for(Player player: players)
         {
             player.showdown();
-            System.out.println(player);
+//            System.out.println(player);
         }
 
-        if(auto)
-            controller.doCall();
-        while(wait)
+        while(wait && !auto)
             repaint();
 
 // Pay pot to winner
         PaymentStage();
+
+
+        // Record
+        for(Player player:players)
+            recorder.write(player.getMoney() + ",");
+        recorder.write("\n");
+
         pot.clear();
 
         // Check if whole game ends by having many folds
@@ -566,7 +603,11 @@ public class Game implements ActionListener {
             turn();
             river();
             if(!gameEnd())
+            {
+                recorder.fileClose();
                 break;
+            }
+
             gameReset();
         }
     }

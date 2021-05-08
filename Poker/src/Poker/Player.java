@@ -13,6 +13,7 @@ public class Player implements Comparable<Player>{
     private Action status;
     private String name;
     private PokerHand strength;
+    private Strategy strategy;
     private final boolean control;
     private int x;
     private int y;
@@ -71,6 +72,16 @@ public class Player implements Comparable<Player>{
     public List<Integer> getKickers()
     {
         return kickers;
+    }
+
+    public void setStrategy(Strategy strat)
+    {
+        strategy = strat;
+    }
+
+    public Strategy getStrategy()
+    {
+        return strategy;
     }
 
     public String name()
@@ -172,6 +183,11 @@ public class Player implements Comparable<Player>{
         return startMoney.subtract(amount);
     }
 
+    public int getStartMoney()
+    {
+        return startMoney.getAmount();
+    }
+
     public void evalHandAccuracy()
     {
         ArrayList<Card> cards = new ArrayList<>(communityCards.getCards());
@@ -185,17 +201,24 @@ public class Player implements Comparable<Player>{
     {
         double[] handStrength = new double[PokerHand.values().length];
 
-        // Copy hand
-        ArrayList<Card> cards = new ArrayList<>(communityCards.getCards());
-        int handSize = hand.size() + communityCards.size();
-        cards.addAll(hand.getCards());
-        Hand startHand = new Hand(cards);
+        // Copy commCards
+        List<Card> commCards = communityCards.getCards();
+        int commSize = commCards.size();
+        int[] excludes = new int[commSize + Game.HAND_SIZE];
         int[] cardIds = new int[Game.COMMUNITY_CARDS_SIZE + Game.HAND_SIZE];
-        int[] excludes = new int[startHand.size()];
-        for(int i = 0; i < startHand.size(); i++)
+
+        for(int i = 0; i < commSize; i++)
         {
-            excludes[i] = startHand.get(i).getId();
-            cardIds[i] = startHand.get(i).getId();
+            int cardId = commCards.get(i).getId();
+            excludes[i] = cardId;
+            cardIds[i] = cardId;
+        }
+
+        // Copy hand
+        for(int i = 0; i < Game.HAND_SIZE; i++)
+        {
+            excludes[commSize + i] = hand.get(i).getId();
+            cardIds[commSize + i] = hand.get(i).getId();
         }
 
         // Prepare deck
@@ -204,8 +227,8 @@ public class Player implements Comparable<Player>{
         for(int i = 0; i < nTrials; i++)
         {
             Deck.shuffle(deck);
-            for(int j = 0; j < Game.COMMUNITY_CARDS_SIZE - communityCards.size(); j++)
-                cardIds[handSize + j] = deck[j];
+            for(int j = 0; j < Game.COMMUNITY_CARDS_SIZE - commSize; j++)
+                cardIds[Game.HAND_SIZE + commSize + j] = deck[j];
             Hand h = new Hand(cardIds);
             try{
                 handStrength[h.evalHand().getId()]++;
@@ -271,12 +294,13 @@ public class Player implements Comparable<Player>{
             }
 
             // CommCards add to players
-            int commCardNeed = Game.COMMUNITY_CARDS_SIZE - communityCards.size();
+            int commCardNeed = Game.COMMUNITY_CARDS_SIZE - commSize;
+
             for(int j = 0; j < commCardNeed; j++)
             {
                 try{
-                    int num = deck[j + deckShift];
-                    playerCards[Game.HAND_SIZE + commSize + j] = num;
+
+                    playerCards[Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
                 }
                 catch (Exception e)
                 {
@@ -303,7 +327,167 @@ public class Player implements Comparable<Player>{
         return winCount/(float)nTrials;
     }
 
+    public void Ai_Strategy(int SBValue, int nActivePlayers, Money callTotal, Money payDest)
+    {
+        switch(strategy)
+        {
+            case CALL_MAN -> strat_CallMan(SBValue, callTotal, payDest);
+            
+            case EXPECTATION -> strat_Expectation(SBValue, callTotal, payDest);
+            case SIMPLE_RANGE -> strat_SimpleRange(SBValue, nActivePlayers, callTotal, payDest);
+            case SIMPLE_RANGE_EXP -> strat_SimpleRangeExp(SBValue, nActivePlayers, callTotal, payDest);
+        }
+    }
 
+    public void strat_CallMan(int SBValue, Money callTotal, Money payDest)
+    {
+        AiCall(SBValue, callTotal, payDest);
+    }
+    
+    public void strat_Expectation(int SBValue, Money callTotal, Money payDest)
+    {
+        int pay = callTotal.getAmount() - bet.getAmount();
+        if(pay == 0)
+            pay = SBValue;
+        float winRate = winRatePrediction(Game.nPlayers, Game.AI_IQ);
+
+        float winRateThreshold = pay / (float)(payDest.getAmount() + pay);
+
+        if(winRateThreshold < winRate)
+            AiCall(SBValue, callTotal, payDest);
+        else
+        {
+            if(callTotal.getAmount() == 0)
+                AiCheck(callTotal);
+            else
+                AiFold();
+        }
+    }
+
+    public void strat_SimpleRangeExp(int SBValue, int nActivePlayers, Money callTotal, Money payDest)
+    {
+        int range_ai = 1;
+        int shift_ai = 4;
+
+
+        double winRate = winRatePrediction(Game.nPlayers, Game.AI_IQ);
+
+        double winRateThreshold_2 = (100/(nActivePlayers + range_ai/Math.pow(2, 2)) + 2*shift_ai)/100;
+        double winRateThreshold_4 = (100/(nActivePlayers + range_ai/Math.pow(4, 2)) + 4*shift_ai)/100;
+        double winRateThreshold_8 = (100/(nActivePlayers + range_ai/Math.pow(8, 2)) + 8*shift_ai)/100;
+
+        int pay = callTotal.getAmount() - bet.getAmount();
+        float winRateThreshold_real = pay / (float)(payDest.getAmount() + pay);
+
+        if(callTotal.getAmount() == 0)
+        {
+            if(winRate < winRateThreshold_real)
+            {
+                AiCheck(callTotal);
+            }
+            else if(winRate < winRateThreshold_2)
+            {
+                AiCall(SBValue, callTotal, payDest);
+            }
+            else if(winRate < winRateThreshold_4)
+            {
+                AiRaise(SBValue*2, SBValue, callTotal, payDest);
+            }
+            else
+            {
+                AiRaise(SBValue*4, SBValue, callTotal, payDest);
+            }
+        }
+        else
+        {
+            if(winRate < winRateThreshold_real)
+            {
+                AiFold();
+            }
+            else
+            {
+                float winRateThreshold = SBValue*4 / (float)(payDest.getAmount() + SBValue*4);
+                if(winRateThreshold < winRate)
+                {
+                    AiRaise(SBValue*4, SBValue, callTotal, payDest);
+                    return;
+                }
+                winRateThreshold = SBValue*2 / (float)(payDest.getAmount() + SBValue*2);
+                if(winRateThreshold < winRate)
+                {
+                    AiRaise(SBValue*2, SBValue, callTotal, payDest);
+                    return;
+                }
+                else
+                    AiCall(SBValue, callTotal, payDest);
+            }
+        }
+    }
+
+    public void strat_SimpleRange(int SBValue, int nActivePLayers, Money callTotal, Money payDest)
+    {
+        int range_ai = 1;
+        int shift_ai = 4;
+
+
+        double winRate = winRatePrediction(Game.nPlayers, Game.AI_IQ);
+        double winRateThreshold_fold = (100/(double)(nActivePLayers + range_ai) + shift_ai)/100;
+        double winRateThreshold_2 = (100/(nActivePLayers + range_ai/Math.pow(2, 2)) + 2*shift_ai)/100;
+        double winRateThreshold_4 = (100/(nActivePLayers + range_ai/Math.pow(4, 2)) + 4*shift_ai)/100;
+        double winRateThreshold_8 = (100/(nActivePLayers + range_ai/Math.pow(8, 2)) + 8*shift_ai)/100;
+
+        if(callTotal.getAmount() == 0)
+        {
+            if(winRate < winRateThreshold_fold)
+            {
+                AiCheck(callTotal);
+            }
+            else if(winRate < winRateThreshold_2)
+            {
+                AiCall(SBValue, callTotal, payDest);
+            }
+            else if(winRate < winRateThreshold_4)
+            {
+                AiRaise(SBValue*2, SBValue, callTotal, payDest);
+            }
+            else
+            {
+                AiRaise(SBValue*4, SBValue, callTotal, payDest);
+            }
+        }
+        else
+        {
+            int pay = callTotal.getAmount() - bet.getAmount();
+            if(winRate < winRateThreshold_fold)
+            {
+                AiFold();
+            }
+            else if(winRate < winRateThreshold_2)
+            {
+                if(pay <= SBValue*2)
+                    AiCall(SBValue, callTotal, payDest);
+                else
+                    AiFold();
+            }
+            else if(winRate < winRateThreshold_4)
+            {
+                if(pay <= SBValue*4)
+                    AiRaise(SBValue*2, SBValue, callTotal, payDest);
+                else
+                    AiFold();
+            }
+            else if(winRate < winRateThreshold_8)
+            {
+                if(pay <= SBValue*8)
+                    AiCall(SBValue, callTotal, payDest);
+                else
+                    AiFold();
+            }
+            else
+                AiCall(SBValue, callTotal, payDest);
+        }
+    }
+    
     public void AiCall(int SBValue, Money callTotal, Money payDest)
     {
         int pay = 0;
@@ -397,9 +581,15 @@ public class Player implements Comparable<Player>{
         {
             status = Action.ALL_IN;
             bet.add(money.subtract(pay));
+            int stop = 0;
+            if(getStartMoney() == 0)
+                stop = 1;
         }
         else
         {
+            int stop = 0;
+            if(getStartMoney() == 0)
+                stop = 1;
             status = Action.ALL_IN;
             bet.add(money.subtract(pay));
         }
@@ -432,16 +622,16 @@ public class Player implements Comparable<Player>{
                 bet.add(money.subtract(pay));
             }
         }
-        else if(callTotal.getAmount() < raiseAmount + bet.getAmount())
-        {
-            status = Action.RAISE;
-            bet.add(money.subtract(pay));
-        }
         else if(raiseAmount >= money.getAmount())
         {
             System.out.println("Over budget, went all in option");
             AiAllIn(callTotal, payDest);
             return;
+        }
+        else if(callTotal.getAmount() < raiseAmount + bet.getAmount())
+        {
+            status = Action.RAISE;
+            bet.add(money.subtract(pay));
         }
         else
         {

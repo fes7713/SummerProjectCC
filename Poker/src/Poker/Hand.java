@@ -91,10 +91,10 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public Card get(int index)
     {
-        if(index < 0 || index >= size)
-        {
-            throw new IndexOutOfBoundsException("Hand List Out of Bound");
-        }
+//        if(index < 0 || index >= size)
+//        {
+//            throw new IndexOutOfBoundsException("Hand List Out of Bound");
+//        }
 
         return hand.get(index);
     }
