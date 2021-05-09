@@ -325,7 +325,9 @@ class PlayerInfoPanel extends JPanel
         g2d.setColor(Color.WHITE);
 
         g2d.setFont(new Font("TimesRoman", Font.BOLD, 18));
-        float winRate = player.winRatePrediction(Game.nPlayers, 10000);
+        float winRate = 0;
+        if(Game.ACTIVE_PLAYER != 0)
+            winRate = player.winRatePrediction(Game.ACTIVE_PLAYER, 10000);
         g2d.drawString(String.format("Win Rate : %.2f", winRate), 40, 40);
 
         g2d.setFont(new Font("TimesRoman", Font.PLAIN, 14));

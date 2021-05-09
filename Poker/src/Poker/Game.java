@@ -14,11 +14,14 @@ public class Game implements ActionListener {
     static final int COMMUNITY_CARDS_SIZE = 5;
     static final int nPlayers = 5;
     static final String[] stages = {"Pre-flop", "Flop", "Turn", "River"};
+    static String STAGE;
     static final int mainPlayerIndex = 0;
     static final int AI_IQ = 1000;
     static final int SEED = 20000;
+    static int ACTIVE_PLAYER;
 
     private int stageCount;
+
     private final int INITIAL_MONEY = 10000;
     private List<Player> players;
     private final Deck deck;
@@ -43,30 +46,30 @@ public class Game implements ActionListener {
 
         initialPlayerIndex = 0;
         currentPlayerIndex = initialPlayerIndex;
+        smallBlind = new Money(300);
 
         players = new ArrayList<>();
         for(int i = 0; i < nPlayers; i++)
-            players.add(new Player(communityCards, INITIAL_MONEY,
+            players.add(new Player(communityCards, smallBlind.getAmount() * 400,
                     Player.WIDTH * i + PokerTable.PADDING,
                     Card.CARD_HEIGHT + PokerTable.PADDING * 4, false));
 
         players.remove(0);
-        players.add(0, new Player(communityCards, INITIAL_MONEY,
+        players.add(0, new Player(communityCards, smallBlind.getAmount() * 300,
                 PokerTable.PADDING,
-                Card.CARD_HEIGHT + PokerTable.PADDING * 4, true));
-        players.get(0).setStrategy(Strategy.CALL_MAN);
-        players.get(1).setStrategy(Strategy.SIMPLE_RANGE_EXP);
-        players.get(2).setStrategy(Strategy.SIMPLE_RANGE_EXP);
-        players.get(3).setStrategy(Strategy.EXPECTATION);
-        players.get(4).setStrategy(Strategy.EXPECTATION);
+                Card.CARD_HEIGHT + PokerTable.PADDING * 4, !auto));
+        players.get(0).setStrategy(Strategy.EXPECTATION);
+        players.get(1).setStrategy(Strategy.EXPECTATION_RAISE_LIMIT_24);
+        players.get(2).setStrategy(Strategy.SIMPLE_RANGE_EXP_IMP);
+        players.get(3).setStrategy(Strategy.EXPECTATION_RAISE_LIMIT_2);
+        players.get(4).setStrategy(Strategy.EXACT_RANGE_EXP_2);
 
         pot = new Money();
         callTotal = new Money();
-        smallBlind = new Money(300);
         pokerTable = new PokerTable(this);
 
-        recorder = new Recorder("PokerTest07.csv");
-        recorder.setActive(true);
+        recorder = new Recorder("PokerTest55.csv");
+        recorder.setActive(auto);
         // First record
         for(Player player:players)
             recorder.write(player.getStrategy() + ",");
@@ -76,6 +79,8 @@ public class Game implements ActionListener {
         recorder.write("\n");
 
         stageCount = 0;
+        STAGE = stages[stageCount];
+
         win = null;
         wait = false;
         gameInit();
@@ -220,6 +225,7 @@ public class Game implements ActionListener {
     }
 
     public void betting() {
+//        System.out.println(STAGE);
         int callCount = 0;
         int checkCount = 0;
         currentPlayerIndex = initialPlayerIndex;
@@ -241,6 +247,11 @@ public class Game implements ActionListener {
             player = players.get(currentPlayerIndex);
             Action action = player.getStatus();
 
+            ACTIVE_PLAYER = nPlayers;
+            for(Player player1 : players)
+                if(player1.getStatus() == Action.FOLD || player1.getStatus() == Action.ALL_IN)
+                    ACTIVE_PLAYER--;
+
             if(action == Action.BB && callTotal.getAmount() == smallBlind.getAmount())
             {
                 // Maybe we dont need this line
@@ -261,13 +272,8 @@ public class Game implements ActionListener {
                 }
                 else
                 {
-                    int activePlayers = nPlayers;
-                    for(Player player1 : players)
-                        if(player1.getStatus() == Action.FOLD || player1.getStatus() == Action.ALL_IN)
-                            activePlayers--;
-                    player.Ai_Strategy(smallBlind.getAmount(), activePlayers, callTotal, pot);
+                    player.Ai_Strategy(smallBlind.getAmount(), ACTIVE_PLAYER, callTotal, pot);
                 }
-
             }
 
 
@@ -343,6 +349,7 @@ public class Game implements ActionListener {
         currentPlayerIndex = initialPlayerIndex;
         controller.initBetButton();
         callTotal.setAmount(0);
+        STAGE = stages[stageCount];
         Action action;
         for(Player player :players)
         {
@@ -354,6 +361,17 @@ public class Game implements ActionListener {
             if(action == Action.ALL_IN)
                 continue;
             player.clearStatus();
+
+        }
+
+        // Update number of active players
+        if(!auto)
+        {
+            ACTIVE_PLAYER = nPlayers;
+            for(Player player1 : players)
+                if(player1.getStatus() == Action.FOLD || player1.getStatus() == Action.ALL_IN)
+                    ACTIVE_PLAYER--;
+            playerInfoPanel.repaint();
             repaint();
         }
     }
@@ -394,33 +412,37 @@ public class Game implements ActionListener {
         }
         player.setStatus(Action.BB);
 
-        if(!auto)
-            playerInfoPanel.repaint();
+
         betting();
     }
 
     public void flop() {
+        communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
         stageCount = (stageCount + 1) % 4;
         stageInit();
-        communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
-        if(!auto)
-            playerInfoPanel.repaint();
+
+
         betting();
     }
 
     public void turn() {
+        communityCards.addCard(deck.pop());
         stageCount = (stageCount + 1) % 4;
         stageInit();
-        communityCards.addCard(deck.pop());
-        if(!auto)
-            playerInfoPanel.repaint();
+
         betting();
     }
 
     public void river() {
+        communityCards.addCard(deck.pop());
         stageCount = (stageCount + 1) % 4;
         stageInit();
-        communityCards.addCard(deck.pop());
+
+
+        ACTIVE_PLAYER = nPlayers;
+        for(Player player1 : players)
+            if(player1.getStatus() == Action.FOLD || player1.getStatus() == Action.ALL_IN)
+                ACTIVE_PLAYER--;
         playerInfoPanel.repaint();
         betting();
     }
@@ -555,7 +577,14 @@ public class Game implements ActionListener {
             repaint();
 
 // Pay pot to winner
-        PaymentStage();
+        try
+        {
+            PaymentStage();
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
 
 
         // Record
