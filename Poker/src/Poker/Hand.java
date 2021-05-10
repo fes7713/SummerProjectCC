@@ -91,11 +91,6 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
 
     public Card get(int index)
     {
-//        if(index < 0 || index >= size)
-//        {
-//            throw new IndexOutOfBoundsException("Hand List Out of Bound");
-//        }
-
         return hand.get(index);
     }
 
@@ -534,8 +529,6 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                     kickers.add(i);
                     count++;
                 }
-//                if(count == 2)
-//                    return PokerHand.THREE_OF_A_KIND;
                 if(count == 2)
                     break;
             }
@@ -567,7 +560,6 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                 if(numFreq[i] == 1)
                 {
                     kickers.add(i);
-//                    return PokerHand.TWO_PAIR;
                     break;
                 }
             }
@@ -599,8 +591,6 @@ public class Hand implements Comparable<Hand>, Iterable<Card>{
                     kickers.add(i);
                     count++;
                 }
-//                if(count == 3)
-//                    return PokerHand.PAIR;
                 if(count == 3)
                     break;
             }
