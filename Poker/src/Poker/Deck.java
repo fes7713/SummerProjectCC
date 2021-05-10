@@ -31,11 +31,6 @@ public class Deck {
         return deck.pop();
     }
 
-    public void add(Card card)
-    {
-        deck.add(card);
-    }
-
     public void addAll(List<Card> cards)
     {
         deck.addAll(cards);

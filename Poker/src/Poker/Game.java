@@ -107,7 +107,6 @@ public class Game implements ActionListener {
         panel.add(playerInfoPanel, BorderLayout.WEST);
 
         frame.add(panel, BorderLayout.SOUTH);
-
         frame.setVisible(true);
     }
 
@@ -135,7 +134,6 @@ public class Game implements ActionListener {
     public Action[] playerStatuses()
     {
         Action[] actions = new Action[nPlayers];
-
         for(int i = 0; i < nPlayers; i++)
             actions[i] = players.get(i).getStatus();
         return actions;
@@ -182,13 +180,7 @@ public class Game implements ActionListener {
     public void paint(Graphics2D g)
     {
         g.drawString(stages[stageCount], 20, PokerTable.PADDING);
-        try{
-            communityCards.paint(g);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        communityCards.paint(g);
 
         g.drawRoundRect(communityCards.getX() - PokerTable.PADDING / 2,
                 communityCards.getY() - PokerTable.PADDING / 2,
@@ -243,7 +235,6 @@ public class Game implements ActionListener {
 
         while(callCount < nPlayers && checkCount < nPlayers)
         {
-
             player = players.get(currentPlayerIndex);
             Action action = player.getStatus();
 
@@ -412,7 +403,6 @@ public class Game implements ActionListener {
         }
         player.setStatus(Action.BB);
 
-
         betting();
     }
 
@@ -420,7 +410,6 @@ public class Game implements ActionListener {
         communityCards.addCards(deck.pop(), deck.pop(), deck.pop());
         stageCount = (stageCount + 1) % 4;
         stageInit();
-
 
         betting();
     }
@@ -447,7 +436,7 @@ public class Game implements ActionListener {
         betting();
     }
 
-    public int[] PaymentStage()
+    public void PaymentStage()
     {
         Money mainPot = new Money();
         Money sidePot = new Money();
@@ -518,17 +507,17 @@ public class Game implements ActionListener {
                 player.takesMoney(sidePotsAmount.get(i) / sidePotWinners.get(i).size());
         }
 
-        // Retrieve index of winners
-        int[] win = new int[sidePotWinners.get(0).size()];
-        for(int i = 0; i < sidePotWinners.get(0).size(); i++)
-        {
-            for(int j = 0; j < nPlayers; j++)
-            {
-                if(sidePotWinners.get(0).get(i).equals(players.get(j)))
-                    win[i] = j;
-            }
-        }
-        return win;
+//        // Retrieve index of winners
+//        int[] win = new int[sidePotWinners.get(0).size()];
+//        for(int i = 0; i < sidePotWinners.get(0).size(); i++)
+//        {
+//            for(int j = 0; j < nPlayers; j++)
+//            {
+//                if(sidePotWinners.get(0).get(i).equals(players.get(j)))
+//                    win[i] = j;
+//            }
+//        }
+//        return win;
     }
 
     public boolean gameEnd(){
@@ -568,23 +557,14 @@ public class Game implements ActionListener {
 
         // show cards
         for(Player player: players)
-        {
             player.showdown();
-//            System.out.println(player);
-        }
 
+        controller.initNextButton();
         while(wait && !auto)
             repaint();
 
 // Pay pot to winner
-        try
-        {
-            PaymentStage();
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
+        PaymentStage();
 
 
         // Record

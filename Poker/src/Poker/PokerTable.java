@@ -165,7 +165,11 @@ class Controller extends JPanel implements ActionListener, ChangeListener
         return money.getAmount();
     }
 
-
+    public void initNextButton()
+    {
+        callButton.setText("Next");
+        callButton.setActionCommand("Next");
+    }
 
     public void initBetButton()
     {

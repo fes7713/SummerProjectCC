@@ -124,22 +124,6 @@ public class Player implements Comparable<Player> {
         money.add(amount);
     }
 
-    public int givesMoney(int amount) {
-        return money.subtract(amount);
-    }
-
-    public void pickCard(Card card) {
-        hand.addCard(card);
-        evalHandAccuracy();
-    }
-
-    public void pickCards(int[] cards) {
-        for (int card : cards) {
-            hand.addCard(new Card(card));
-        }
-        evalHandAccuracy();
-    }
-
     public void pickCards(Card... cards) {
         for (Card card : cards) {
             hand.addCard(card);
@@ -200,12 +184,7 @@ public class Player implements Comparable<Player> {
             for (int j = 0; j < Game.COMMUNITY_CARDS_SIZE - commSize; j++)
                 cardIds[Game.HAND_SIZE + commSize + j] = deck[j];
             Hand h = new Hand(cardIds);
-            try {
-                handStrength[h.evalHand().getId()]++;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            handStrength[h.evalHand().getId()]++;
         }
 
         for (int i = 0; i < handStrength.length; i++) {
@@ -257,13 +236,7 @@ public class Player implements Comparable<Player> {
             int commCardNeed = Game.COMMUNITY_CARDS_SIZE - commSize;
 
             for (int j = 0; j < commCardNeed; j++) {
-                try {
-
-                    playerCards[Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
-                } catch (Exception e) {
-                    System.out.println("j : " + j);
-                    e.printStackTrace();
-                }
+                playerCards[Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
                 for (int k = 0; k < nPlayers - 1; k++)
                     botsCards[k][Game.HAND_SIZE + commSize + j] = deck[j + deckShift];
             }
@@ -334,7 +307,7 @@ public class Player implements Comparable<Player> {
 
     public void strat_ExpectationRaise_LIMIT_24(int SBValue, int nActivePlayers, Money callTotal, Money payDest) {
         int stop = 0;
-        if (callTotal.getAmount() > 80000)
+        if (callTotal.getAmount() > 60000)
             stop = 1;
         int targetExpectation_4 = 4;
         int targetExpectation_2 = 2;
@@ -375,11 +348,19 @@ public class Player implements Comparable<Player> {
         }
         else
         {
-            AiCall(SBValue, callTotal, payDest);
+            if(callTotal.getAmount() > SBValue*24 && bet.getAmount() != 0 && callTotal.getAmount() / (float)bet.getAmount() > 3)
+                AiFold();
+            else if(callTotal.getAmount() > SBValue*24 && bet.getAmount() == 0)
+                AiFold();
+            else
+                AiCall(SBValue, callTotal, payDest);
         }
     }
 
     public void strat_ExpectationRaise_LIMIT_2(int SBValue, int nActivePlayers, Money callTotal, Money payDest) {
+        int stop = 0;
+        if (callTotal.getAmount() > 60000)
+            stop = 1;
         int targetExpectation = 2;
 
         int pay = callTotal.getAmount() - bet.getAmount();
