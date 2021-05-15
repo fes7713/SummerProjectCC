@@ -68,7 +68,7 @@ public class Game implements ActionListener {
         callTotal = new Money();
         pokerTable = new PokerTable(this);
 
-        recorder = new Recorder("PokerTest55.csv");
+        recorder = new Recorder("PokerTest56.csv");
         recorder.setActive(auto);
         // First record
         for(Player player:players)
@@ -616,7 +616,6 @@ public class Game implements ActionListener {
                 recorder.fileClose();
                 break;
             }
-
             gameReset();
         }
     }
@@ -628,7 +627,6 @@ public class Game implements ActionListener {
             wait = false;
             return;
         }
-        // ** Need SB and BB fix for AIs
         if(!players.get(currentPlayerIndex).isControl())
             if(players.get(currentPlayerIndex).getStatus() != Action.BB && players.get(currentPlayerIndex).getStatus() != Action.SB)
                 return;
@@ -636,9 +634,7 @@ public class Game implements ActionListener {
         switch(command)
         {
             case "Fold" -> players.get(currentPlayerIndex).AiFold();
-
             case "Check" -> players.get(currentPlayerIndex).AiCheck(callTotal);
-
             case "Bet" -> {
                 if(controller.getBetMoney() <= smallBlind.getAmount())
                     players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
@@ -646,11 +642,8 @@ public class Game implements ActionListener {
                     players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
             }
             case "Call" -> players.get(currentPlayerIndex).AiCall(smallBlind.getAmount(),callTotal , pot);
-
             case "Raise" -> players.get(currentPlayerIndex).AiRaise(controller.getBetMoney(), smallBlind.getAmount(), callTotal, pot);
-
             case "All-In" -> players.get(currentPlayerIndex).AiAllIn(callTotal, pot);
-
         }
         repaint();
     }

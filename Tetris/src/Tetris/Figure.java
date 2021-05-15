@@ -182,6 +182,8 @@ public class Figure {
     {
         List<Figure> figures = game.getFigures();
 
+        if(intersects(game.getWall()))
+            return true;
         for(Figure figure : figures)
         {
             if(intersects(figure) && !exclude.equals(figure))

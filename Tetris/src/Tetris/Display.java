@@ -24,8 +24,6 @@ public class Display extends JPanel {
         col = game.getMAX_COL();
         boxWidth = game.getBOX_SIZE();
         startPos = game.getSTART_POS();
-// Draw Wall
-        drawWall();
 
         // Adding key listener to the display.
         // When arrow keys are pressed then update figures' coordinates.
@@ -74,6 +72,8 @@ public class Display extends JPanel {
         // Draw Score Board;
         game.getScoreBoard().paint(g2d);
 
+        // Draw wall
+        game.getWall().paint(g2d);
         // Pos display // Test String Draw, delete in the release edition.
         g2d.drawString("Row :" + String.valueOf(game.getFigures().get(0).getTop()), getWidth()-60, 20);
         g2d.drawString("Column :" + String.valueOf(game.getFigures().get(0).getLeft()), getWidth()-60, 40);
@@ -93,22 +93,6 @@ public class Display extends JPanel {
     }
 
     // WIP
-    public void drawWall()
-    {
-        boolean[][] map = new boolean[row + 1][col + 2];
-        for(int i = 0; i < row + 1; i++)
-        {
-            for(int j = 0; j < col + 2; j++)
-            {
-                if(i == row || j == 0 || j == col + 1)
-                    map[i][j] = true;
-                else
-                    map[i][j] = false;
 
-            }
-        }
-        Figure wall = new Figure(game, map, -1, 0, false);
-        game.add(wall);
-    }
 }
 

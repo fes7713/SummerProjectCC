@@ -19,7 +19,7 @@ public class Game {
     private final List<TetrisFigure> tetrisFigures = new ArrayList<>();
     Figure movingFigure;
     private boolean hit;
-
+    private Figure wall;
 //    private TetrisFigure movingFigure;
 
     // Done
@@ -33,6 +33,8 @@ public class Game {
         // This is figure list and all of things in this list will be displayed on the display.
         figures = new ArrayList<>();
 
+        drawWall();
+
         // This part creates the window.
         // No need to edit this part and just use this as it is.
         JFrame frame = new JFrame("Simple game");
@@ -41,6 +43,8 @@ public class Game {
         frame.setSize(600, 800);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
     }
 
     // Adding figure to the list
@@ -57,6 +61,27 @@ public class Game {
         return randomFig;
     }
 
+    public void drawWall()
+    {
+        boolean[][] map = new boolean[MAX_ROW + 1][MAX_COL + 2];
+        for(int i = 0; i < MAX_ROW + 1; i++)
+        {
+            for(int j = 0; j < MAX_COL + 2; j++)
+            {
+                if(i == MAX_ROW || j == 0 || j == MAX_COL + 1)
+                    map[i][j] = true;
+                else
+                    map[i][j] = false;
+
+            }
+        }
+        wall = new Figure(this, map, -1, 0, false);
+    }
+
+    public Figure getWall()
+    {
+        return wall;
+    }
     // WIP
     // Main run function
     public void run() throws InterruptedException {
@@ -72,6 +97,7 @@ public class Game {
                 add(movingFigure);
                 hit = false;
             }
+            System.out.println(checkLineFilled());
 
             // Display class is responsible for updating the game display.
             this.display.repaint();
@@ -130,6 +156,72 @@ public class Game {
     public void hitBottom()
     {
         hit = true;
+    }
+
+    public boolean checkLineFilled()
+    {
+        int[][] map = new int[MAX_ROW][MAX_COL];
+
+        for(Figure fig : figures)
+        {
+            if(!fig.isMovable())
+            {
+                int left = fig.getLeft();
+                int top = fig.getTop();
+                for(int i = 0; i < fig.getRow(); i++)
+                {
+                    for(int j = 0; j < fig.getColumn(); j++)
+                    {
+                        boolean a = i + top < 0 || i + top > MAX_ROW - 1;
+                        boolean b = j + left < 0 || j + left > MAX_COL - 1;
+
+                        if((a || b) && fig.isActiveCell(i, j))
+                            System.out.println("Error Collision failed");
+                        else if((a || b) && !fig.isActiveCell(i, j))
+                            System.out.println("Collision Working");
+                        else
+                        {
+                            map[i + top][j + left] = fig.isActiveCell(i, j) ? 1 : 0;
+                        }
+
+
+                    }
+                }
+            }
+        }
+        boolean flag = false;
+        for(int i = 0; i < MAX_ROW; i++)
+        {
+            for(int j = 0; j < MAX_COL; j++)
+            {
+                if(map[i][j] != 1)
+                    break;
+                else
+                {
+                    flag = true;
+                    if(j == MAX_COL - 1)
+                    {
+                        // Delete line
+                        if(i > 0)
+                        {
+                            for(int p = i - 1; p >= 0; p--)
+                            {
+                                for(int q = 0; q < MAX_COL; q++)
+                                {
+                                    map[p + 1][q] = map[p][q];
+                                }
+                            }
+                        }
+
+                        for(int p = 0; p < MAX_COL; p++)
+                        {
+                            map[0][p] = 0;
+                        }
+                    }
+                }
+            }
+        }
+        return flag;
     }
 
     // Test main
