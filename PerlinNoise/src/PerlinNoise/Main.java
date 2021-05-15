@@ -3,7 +3,6 @@ package PerlinNoise;
 import javax.swing.*;
 import java.awt.*;
 
-
 public class Main {
     static int WIDTH = 300;
     static int HEIGHT = 300;
