@@ -2,37 +2,34 @@ package PerlinNoise;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 public class Main {
-    static int WIDTH = 300;
-    static int HEIGHT = 300;
+    static int WIDTH = 500;
+    static int HEIGHT = 500;
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("Perlin Noise");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(new Dimension(WIDTH, HEIGHT));
 
-        JPanel p1 = new JPanel(){
-            public void paint(Graphics g)
-            {
-                super.paint(g);
 
-                Graphics2D g2d = (Graphics2D) g;
+        Display display = new Display();
 
-                for(int i = 0; i < Main.HEIGHT; i++)
-                {
-                    for(int j = 0; j < Main.HEIGHT; j++)
-                    {
-                        double b = ImprovedNoise.noise(i/50.0f,  j/50.0f, 0);
-                        g2d.setColor(new Color( (int)(128 + 128*b), (int)(128 + 128*b), (int)(128 + 128*b)));
-                        g2d.fillRect(i, j, 1, 1);
-                    }
-                }
-            }
-        };
 
-        frame.add(p1);
+        frame.add(display);
         frame.show();
+
+        JFrame controller = new JFrame("Controller");
+        controller.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        controller.setBounds(300, 100, 200, 100);
+
+
+        JSlider slider = new JSlider(0, 30);
+        slider.addChangeListener(display);
+        controller.add(slider);
+        controller.show();
     }
 }
