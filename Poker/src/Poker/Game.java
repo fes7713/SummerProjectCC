@@ -36,7 +36,7 @@ public class Game implements ActionListener {
     private int currentPlayerIndex, initialPlayerIndex;
     private Integer[] win;
     private boolean wait;
-    private final boolean auto = false;
+    private final boolean auto = true;
     private boolean end = false;
 
     public Game()
@@ -55,7 +55,7 @@ public class Game implements ActionListener {
                     Card.CARD_HEIGHT + PokerTable.PADDING * 4, false));
 
         players.remove(0);
-        players.add(0, new Player(communityCards, smallBlind.getAmount() * 300,
+        players.add(0, new Player(communityCards, smallBlind.getAmount() * 400,
                 PokerTable.PADDING,
                 Card.CARD_HEIGHT + PokerTable.PADDING * 4, !auto));
         players.get(0).setStrategy(Strategy.EXPECTATION);
@@ -68,7 +68,7 @@ public class Game implements ActionListener {
         callTotal = new Money();
         pokerTable = new PokerTable(this);
 
-        recorder = new Recorder("PokerTest56.csv");
+        recorder = new Recorder("PokerTest58.csv");
         recorder.setActive(auto);
         // First record
         for(Player player:players)
