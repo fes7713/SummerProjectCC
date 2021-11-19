@@ -1,5 +1,12 @@
 # SummerProjectCC
 
+## Main Project
+### Texus Holden in Java
+![Poker Game](https://user-images.githubusercontent.com/71058334/127112991-8888b7e8-fe70-4306-a5b5-9a45a15edc8a.PNG)
+
+### Tetris
+![Tetris](https://user-images.githubusercontent.com/71058334/127113068-01101eea-00e2-46b9-b0e5-e5fef99c141b.PNG)
+
 
 We can learn how to use Git and Github here.
 Git and Github are very useful to administrate files but it's not easy to get used to using them.
