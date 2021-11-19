@@ -4,8 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ArrayListSpeedTest/ArrayListSpeedTest.iml" filepath="$PROJECT_DIR$/ArrayListSpeedTest/ArrayListSpeedTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/BallBounce/BallBounce.iml" filepath="$PROJECT_DIR$/BallBounce/BallBounce.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CIS2107/CIS2107.iml" filepath="$PROJECT_DIR$/CIS2107/CIS2107.iml" />
       <module fileurl="file://$PROJECT_DIR$/CircleTrace/CircleTrace.iml" filepath="$PROJECT_DIR$/CircleTrace/CircleTrace.iml" />
       <module fileurl="file://$PROJECT_DIR$/CircleX/CircleX.iml" filepath="$PROJECT_DIR$/CircleX/CircleX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GUIProject/GUIProject.iml" filepath="$PROJECT_DIR$/GUIProject/GUIProject.iml" />
       <module fileurl="file://$PROJECT_DIR$/GraphicsDrawSamples/GraphicsDrawSamples.iml" filepath="$PROJECT_DIR$/GraphicsDrawSamples/GraphicsDrawSamples.iml" />
       <module fileurl="file://$PROJECT_DIR$/ImageDisplay/ImageDisplay.iml" filepath="$PROJECT_DIR$/ImageDisplay/ImageDisplay.iml" />
       <module fileurl="file://$PROJECT_DIR$/LayputSamples/LayputSamples.iml" filepath="$PROJECT_DIR$/LayputSamples/LayputSamples.iml" />

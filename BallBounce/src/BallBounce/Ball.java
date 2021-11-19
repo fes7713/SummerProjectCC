@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.lang.Math;
 
 public class Ball {
+
     int x;
     int y;
     int radius;
@@ -14,8 +15,8 @@ public class Ball {
     Ball(int A00) {
         this.radius = A00;
 
-        x = (int)(Math.random() * (DrawPanel.width - radius));
-        y = (int)(Math.random() * (DrawPanel.height - radius));
+        x = (int) (Math.random() * (DrawPanel.width - radius));
+        y = (int) (Math.random() * (DrawPanel.height - radius));
 
         // 進行方向はランダム
         if (Math.random() > 0.5) {

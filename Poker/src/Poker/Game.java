@@ -649,6 +649,7 @@ public class Game implements ActionListener {
     }
 
     public static void main(String[] args) {
+        System.out.println("Working ");
         Game game = new Game();
         game.run();
         while(true)
